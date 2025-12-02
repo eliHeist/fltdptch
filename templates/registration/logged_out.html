@@ -1,0 +1,17 @@
+{% extends '_base.html' %} {% load tailwind_filters static %}
+
+{% block slot %}
+
+<main class="h-screen w-screen grid place-content-center p-4 dark:bg-grey-950 bg-white dark:text-white">
+    <div class="max-w-lg w-full">
+    
+        <p>
+            You are logged out.
+        </p>
+        <div class="py-5 border-t border-gray-200 mt-5 grid justify-center">
+            <a class="btn btn-primary" href="{% url 'accounts:login' %}">Log back in</a>
+        </div>
+    </div>
+</main>
+
+{% endblock slot %}

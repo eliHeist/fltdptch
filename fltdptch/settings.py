@@ -38,6 +38,10 @@ INSTALLED_APPS = [
 
     "django_cotton.apps.SimpleAppConfig",
     "template_partials.apps.SimpleAppConfig",
+
+    "django_cotton",
+    "widget_tweaks",
+    "django_htmx",
 ]
 INSTALLED_APPS += getAppNames()
 
@@ -49,6 +53,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = "fltdptch.urls"
@@ -129,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Africa/Kampala"
 
 USE_I18N = True
 
@@ -147,7 +153,7 @@ CSRF_COOKIE_SECURE = True
 STATIC_URL = "static/"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'fltdptch/assets/static/'),
+    os.path.join(BASE_DIR, 'fltdptch/assets/static/dist/'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'fltdptch/assets/staticfiles')
 
@@ -158,6 +164,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'fltdptch/assets/media')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "accounts.User"
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = False
+SESSION_COOKIE_AGE = 24 * 60 * 60
 
 # Email settings
 EMAIL_BACKEND = env('EMAIL_BACKEND')

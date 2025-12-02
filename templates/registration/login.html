@@ -1,0 +1,35 @@
+
+
+<c-base title="login">
+    <div class="h-screen grid place-content-center bg-base-200">
+        <div>
+            <h1 class="text-3xl font-bold text-primary text-center mb-8">DotScholar</h1>
+            <div class="card bg-base-100 min-w-96">
+                <div class="card-body">
+                    <h1 class="card-title text-center">Login</h1>
+                    <form method="post">
+                        {% csrf_token %}
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Email</legend>
+                            <input type="email" name="email" value="{{ email }}" class="input w-full" placeholder="" />
+                            {% if email_error %}
+                            <p class="label text-error">{{ email_error }}</p>
+                            {% endif %}
+                        </fieldset>
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Password</legend>
+                            <input type="password" name="password" value="{{ password }}" class="input w-full" placeholder="" />
+                            {% if password_error %}
+                            <p class="label text-error">{{ password_error }}</p>
+                            {% endif %}
+                        </fieldset>
+                        <a href="{% url 'accounts:reset_password' %}" class="text-secondary">Forgot Password?</a>
+                        <button class="btn btn-primary w-full mt-2">
+                            Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</c-base>
