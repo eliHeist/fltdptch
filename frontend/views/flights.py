@@ -19,4 +19,4 @@ class FlightListView(LoginRequiredMixin, View):
             "date": date,
         }
         
-        return render(request, "flights/flight_list.html", context)
+        return render(request, "frontend/flights/list.html", context)
