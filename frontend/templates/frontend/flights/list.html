@@ -1,0 +1,39 @@
+
+
+<c-layouts>
+    <div class="flex justify-between">
+        <h2 class="text-xl">{{ date }}</h2>
+    </div>
+    
+    <c-table>
+        <c-table.header>
+            <c-table.row>
+                <c-table.head>Flight No.</c-table.head>
+                <c-table.head>Aircraft Reg</c-table.head>
+                <c-table.head>Status</c-table.head>
+                <c-table.head>Opening</c-table.head>
+                <c-table.head>Closing</c-table.head>
+                <c-table.head>Boarding</c-table.head>
+                <c-table.head>Arrival at Aircraft</c-table.head>
+            </c-table.row>
+        </c-table.header>
+        <c-table.body id="flights">
+            {% for flight in flights %}{% partial flight_row %}{% endfor %}
+        </c-table.body>
+    </c-table>
+    
+</c-layouts>
+
+
+{% partialdef flight_row %}
+<c-table.row>
+    <c-table.cell>{{ flight.flight_number }}</c-table.cell>
+    <c-table.cell>{{ flight.aircraft.reg }}</c-table.cell>
+    <c-table.cell>{{ flight.supervisor_status }}</c-table.cell>
+    <c-table.cell>{{ flight.opening_counters }}</c-table.cell>
+    <c-table.cell>{{ flight.closing_counters }}</c-table.cell>
+    <c-table.cell>{{ flight.boarding_bus }}</c-table.cell>
+    <c-table.cell>{{ flight.arrival_at_aircraft }}</c-table.cell>
+</c-table.row>
+{% endpartialdef flight_row %}
+
