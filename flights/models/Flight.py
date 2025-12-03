@@ -4,7 +4,7 @@ from django.db import models
 class Flight(models.Model):
     date = models.DateField()
     flight_number = models.CharField(max_length=10)
-    aircraft_reg = models.ForeignKey("flights.Aircraft", on_delete=models.SET_NULL, null=True)
+    aircraft = models.ForeignKey("flights.Aircraft", on_delete=models.SET_NULL, null=True)
 
     opening_counters = models.TimeField(null=True, blank=True)
     closing_counters = models.TimeField(null=True, blank=True)
@@ -39,3 +39,5 @@ class Flight(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.flight_number}"
+    
+    supervisor_status = lambda self: "Closed" if self.supervisor_closed else "Open"
