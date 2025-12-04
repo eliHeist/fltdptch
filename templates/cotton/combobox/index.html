@@ -44,6 +44,14 @@
           document.removeEventListener('keydown', this.handleKeyDown);
         }
       });
+
+      {% comment %} select default {% endcomment %}
+      if (this.value) {
+        const option = this.options.find(opt => opt.value === this.value);
+        if (option) {
+          this.buttonText = option.label;
+        }
+      }
     },
 
     updateFilteredOptions() {

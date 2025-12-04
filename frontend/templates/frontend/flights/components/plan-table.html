@@ -1,48 +1,20 @@
 <div id="table">
-	<div class="actions flex justify-end mb-2">
-		<c-dialog>
-			<c-dialog.trigger>Add a flight</c-dialog.trigger>
-			<c-dialog.content>
-				<c-dialog.header>
-					<c-dialog.title>Add a flight</c-dialog.title>
-					<c-dialog.description>
-						Enter flight details below.
-					</c-dialog.description>
-				</c-dialog.header>
-                <form action="" method="post">
-                    {% csrf_token %}
-                    <div class="grid gap-4 py-4">
-                        <c-input type="text" name="flight_number" label="Flight Number" required placeholder="Enter flight number" />
-                        <div id="combobox" class="flex gap-2">
-                            <c-combobox
-                                :options='[
-                                    {% for aircraft in aircrafts %}
-                                        { value: "{{ aircraft.id }}", label: "{{ aircraft.full_name }}" },
-                                    {% endfor %}
-                                ]'
-                                placeholder='Search aircraft...'
-                                button_text='Select aircraft...'
-                                class='flex-1'
-                                width='w-full'
-                            />
-                        </div>
-                    </div>
-                </form>
-				<div class="flex justify-end gap-2 pt-4">
-					<c-button variant="outline" @click="hideDialog">Cancel</c-button>
-					<c-button variant="default">Submit</c-button>
-				</div>
-			</c-dialog.content>
-		</c-dialog>
+	<div class="actions flex gap-2 justify-end mb-2">
+        <form action="" method="get">
+            {% csrf_token %}
+            <c-input type="date" name="date" value="{{ date|date:'Y-m-d' }}" required />
+        </form>
+		{% partial form %}
 	</div>
 	<c-table>
-		<c-table.caption> Flights scheduled for this day. </c-table.caption>
+		<c-table.caption> Flights scheduled for {{ date }} </c-table.caption>
 		<c-table.header>
 			<c-table.row>
-				<c-table.head></c-table.head>
-				<c-table.head class="w-[100px]">No.</c-table.head>
+				<c-table.head class="w-[2rem]"></c-table.head>
+				<c-table.head class="w-[6rem]">No.</c-table.head>
 				<c-table.head>Aircraft Reg</c-table.head>
 				<c-table.head>Status</c-table.head>
+				<c-table.head></c-table.head>
 			</c-table.row>
 		</c-table.header>
 		<c-table.body id="flights">
@@ -53,9 +25,64 @@
 
 {% partialdef flight_row %}
 <c-table.row>
-	<c-table.cell><c-checkbox value="{{ flight.id }}" /></c-table.cell>
-	<c-table.cell>{{ flight.flight_number }}</c-table.cell>
-	<c-table.cell>{{ flight.aircraft.reg }}</c-table.cell>
-	<c-table.cell>{{ flight.supervisor_status }}</c-table.cell>
+	<c-table.cell class="w-[2rem]"><c-checkbox name="selected_flights" value="{{ flight.id }}" /></c-table.cell>
+	<c-table.cell class="w-[6rem]">{{ flight.flight_number }}</c-table.cell>
+	<c-table.cell title="{{ flight.aircraft.name }}">{{ flight.aircraft.reg }}</c-table.cell>
+    {% with s=flight.supervisor_status %}
+	<c-table.cell>
+        {% if s == 'Open' %}
+            <c-badge class="uppercase">{{ s }}</c-badge>
+        {% else %}
+            <c-badge variant="secondary" class="uppercase">{{ s }}</c-badge>
+        {% endif %}
+    </c-table.cell>
+	<c-table.cell class="flex justify-end">
+        {% with edit=True %}
+        {% partial form %}
+        {% endwith %}
+    </c-table.cell>
+    {% endwith %}
 </c-table.row>
 {% endpartialdef flight_row %}
+
+
+{% partialdef form %}
+<c-dialog>
+    <c-dialog.trigger>
+        {% if edit %}
+        Edit
+        {% else %}
+        Add a flight
+        {% endif %}
+    </c-dialog.trigger>
+    <c-dialog.content>
+        <c-dialog.header>
+            <c-dialog.title>Edit flight</c-dialog.title>
+        </c-dialog.header>
+        <form action="" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit-flight" />
+            <input type="hidden" name="date" value="{{ flight.date|date:'Y-m-d' }}" />
+            <div class="grid gap-4 py-4">
+                <c-input type="text" name="flight_number" label="Flight Number" required placeholder="Enter flight number" value="{{ flight.flight_number }}" />
+                <div id="combobox" class="flex gap-2">
+                    <c-combobox
+                        :options='{{ aircraft_options|safe }}'
+                        selected_value={{ flight.aircraft.pk }}
+                        placeholder='Search aircraft...'
+                        button_text='Select aircraft...'
+                        class='flex-1'
+                        width='w-full'
+                        name='aircraft_id'
+                        required
+                    />
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-4">
+                <c-button variant="outline" @click="hideDialog">Cancel</c-button>
+                <c-button type="submit">Submit</c-button>
+            </div>
+        </form>
+    </c-dialog.content>
+</c-dialog>
+{% endpartialdef form %}

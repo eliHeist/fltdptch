@@ -1,11 +1,6 @@
 <c-layouts>
 
-    <form action="" method="get">
-        {% csrf_token %}
-        <div class="flex">
-            <c-input type="date" name="date" value="{{ date|date:'Y-m-d' }}" required />
-        </div>
-    </form>
+    
 
     {% include "frontend/flights/components/plan-table.html" %}
 </c-layouts>
