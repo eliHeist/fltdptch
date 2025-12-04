@@ -6,21 +6,22 @@
         </form>
 		{% partial form %}
 	</div>
-	<c-table>
-		<c-table.caption> Flights scheduled for {{ date }} </c-table.caption>
-		<c-table.header>
-			<c-table.row>
-				<c-table.head class="w-[2rem]"></c-table.head>
-				<c-table.head class="w-[6rem]">No.</c-table.head>
-				<c-table.head>Aircraft Reg</c-table.head>
-				<c-table.head>Status</c-table.head>
-				<c-table.head></c-table.head>
-			</c-table.row>
-		</c-table.header>
-		<c-table.body id="flights">
-			{% for flight in flights %}{% partial flight_row %}{% endfor %}
-		</c-table.body>
-	</c-table>
+    <div class="border rounded-lg">
+        <c-table>
+            <c-table.header>
+                <c-table.row>
+                    <c-table.head class="w-[2rem]"></c-table.head>
+                    <c-table.head class="w-[6rem]">No.</c-table.head>
+                    <c-table.head>Aircraft Reg</c-table.head>
+                    <c-table.head>Status</c-table.head>
+                    <c-table.head></c-table.head>
+                </c-table.row>
+            </c-table.header>
+            <c-table.body id="flights">
+                {% for flight in flights %}{% partial flight_row %}{% endfor %}
+            </c-table.body>
+        </c-table>
+    </div>
 </div>
 
 {% partialdef flight_row %}

@@ -1,0 +1,140 @@
+
+
+<c-layouts>
+    <div class="flex justify-end items-center mb-2">
+        {% with user="" %}
+        {% partial form %}
+        {% endwith %}
+    </div>
+    
+    <div class="border rounded-lg">
+        <c-table>
+            <c-table.header>
+                <c-table.row>
+                    <c-table.head>Name</c-table.head>
+                    <c-table.head>Email</c-table.head>
+                    <c-table.head>Status</c-table.head>
+                    <c-table.head>Identifier</c-table.head>
+                    <c-table.head></c-table.head>
+                </c-table.row>
+            </c-table.header>
+            <c-table.body id="users">
+                {% for user in users %}{% partial user_row %}{% endfor %}
+            </c-table.body>
+        </c-table>
+    </div>
+    
+</c-layouts>
+
+
+{% partialdef user_row %}
+<c-table.row>
+    <c-table.cell>{{ user.get_full_name }}</c-table.cell>
+    <c-table.cell>{{ user.email }}</c-table.cell>
+    <c-table.cell>
+        {% if user.is_active %}
+            <c-badge class="uppercase">Active</c-badge>
+        {% else %}
+            <c-badge variant="secondary" class="uppercase">Inactive</c-badge>
+        {% endif %}
+    </c-table.cell>
+    <c-table.cell>{{ user.get_identifier }}</c-table.cell>
+    {% with edit=True %}
+    <c-table.cell class="flex justify-end">{% partial form %}</c-table.cell>
+    {% endwith %}
+</c-table.row>
+{% endpartialdef user_row %}
+
+{% partialdef form %}
+<c-sheet>
+    <c-sheet.trigger>
+        {% if edit %}
+        <c-button variant='outline'>View</c-button>
+        {% else %}
+        <c-button>Add</c-button>
+        {% endif %}
+    </c-sheet.trigger>
+    <c-sheet.content side='right'>
+        <c-sheet.header>
+        <c-sheet.title>
+            {% if edit %}
+            {{ user.get_full_name }}
+            {% else %}
+            Add new user
+            {% endif %}
+        </c-sheet.title>
+        </c-sheet.header>
+        {% if edit %}
+        <section>
+            {% if user.is_active %}
+                <c-badge class="uppercase">Active</c-badge>
+            {% else %}
+                <c-badge variant="secondary" class="uppercase">Inactive</c-badge>
+            {% endif %}
+        </section>
+        {% endif %}
+        <form action="" method="post" class="mt-4">
+            {% csrf_token %}
+            {% if edit %}
+            <input type="hidden" name="action" value="edit-user">
+            <input type="hidden" name="pk" value="{{ user.pk }}">
+            {% else %}
+            <input type="hidden" name="action" value="add-user">
+            {% endif %}
+            <c-form.fieldset>
+                <div class="grid grid-cols-2 gap-2">
+                    <c-form.field>
+                        <c-form.label>First Name</c-form.label>
+                        {% if edit %}
+                        <c-input name='first_name' type='text' value="{{ user.first_name }}" required></c-input>
+                        {% else %}
+                        <c-input name='first_name' type='text' required></c-input>
+                        {% endif %}
+                    </c-form.field>
+                    <c-form.field>
+                        <c-form.label>Last Name</c-form.label>
+                        {% if edit %}
+                        <c-input name='last_name' type='text' value="{{ user.last_name }}" required></c-input>
+                        {% else %}
+                        <c-input name='last_name' type='text' required></c-input>
+                        {% endif %}
+                    </c-form.field>
+                </div>
+                <c-form.field>
+                    <c-form.label>Email</c-form.label>
+                    {% if edit %}
+                    <c-input name='email' type='email' value="{{ user.email }}" required></c-input>
+                    {% else %}
+                    <c-input name='email' type='email' required></c-input>
+                    {% endif %}
+                </c-form.field>
+                {% with p=user.get_profile %}
+                <div class="grid grid-cols-2 gap-2">
+                    <c-form.field>
+                        <c-form.label>Gender</c-form.label>
+                        <c-select name='gender' :value="{{ p.gender }}" required>
+                            <c-select.trigger>
+                                <c-select.value placeholder='Gender' />
+                            </c-select.trigger>
+                            <c-select.content>
+                                <c-select.item value='F'>Female</c-select.item>
+                                <c-select.item value='M'>Male</c-select.item>
+                            </c-select.content>
+                        </c-select>
+                    </c-form.field>
+                    <c-form.field>
+                        <c-form.label>Identifier</c-form.label>
+                        <c-input name='identifier' type='text' value="{{ p.identifier }}" required></c-input>
+                    </c-form.field>
+                </div>
+                {% endwith %}
+            </c-form.fieldset>
+            <div class="flex justify-end gap-2 pt-4">
+                <c-button variant="outline" type="button" @click="hideSheet">Cancel</c-button>
+                <c-button type="submit">Save</c-button>
+            </div>
+        </form>
+    </c-sheet.content>
+</c-sheet>
+{% endpartialdef form %}
+

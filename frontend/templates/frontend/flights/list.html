@@ -1,39 +1,128 @@
 
 
 <c-layouts>
-    <div class="flex justify-between">
+    <div class="flex justify-between mb-2">
         <h2 class="text-xl">{{ date }}</h2>
     </div>
     
-    <c-table>
-        <c-table.header>
-            <c-table.row>
-                <c-table.head>Flight No.</c-table.head>
-                <c-table.head>Aircraft Reg</c-table.head>
-                <c-table.head>Status</c-table.head>
-                <c-table.head>Opening</c-table.head>
-                <c-table.head>Closing</c-table.head>
-                <c-table.head>Boarding</c-table.head>
-                <c-table.head>Arrival at Aircraft</c-table.head>
-            </c-table.row>
-        </c-table.header>
-        <c-table.body id="flights">
-            {% for flight in flights %}{% partial flight_row %}{% endfor %}
-        </c-table.body>
-    </c-table>
+    <div class="border rounded-lg">
+        <c-table>
+            <c-table.header>
+                <c-table.row>
+                    <c-table.head class="w-[5rem]">No.</c-table.head>
+                    <c-table.head class="w-[5rem]">A/C Reg</c-table.head>
+                    <c-table.head>Opening</c-table.head>
+                    <c-table.head>Closing</c-table.head>
+                    <c-table.head>Boarding</c-table.head>
+                    <c-table.head>Arrival at A/C</c-table.head>
+                    <c-table.head>Dispatched By</c-table.head>
+                    <c-table.head>Counters By</c-table.head>
+                    <c-table.head></c-table.head>
+                </c-table.row>
+            </c-table.header>
+            <c-table.body id="flights">
+                {% for flight in flights %}{% partial flight_row %}{% endfor %}
+            </c-table.body>
+        </c-table>
+    </div>
     
 </c-layouts>
 
 
 {% partialdef flight_row %}
 <c-table.row>
-    <c-table.cell>{{ flight.flight_number }}</c-table.cell>
-    <c-table.cell>{{ flight.aircraft.reg }}</c-table.cell>
-    <c-table.cell>{{ flight.supervisor_status }}</c-table.cell>
-    <c-table.cell>{{ flight.opening_counters }}</c-table.cell>
-    <c-table.cell>{{ flight.closing_counters }}</c-table.cell>
-    <c-table.cell>{{ flight.boarding_bus }}</c-table.cell>
-    <c-table.cell>{{ flight.arrival_at_aircraft }}</c-table.cell>
+    <c-table.cell class="w-[5rem]">{{ flight.flight_number }}</c-table.cell>
+    <c-table.cell  class="w-[5rem]" title="{{ flight.aircraft.full_name }}">{{ flight.aircraft.reg }}</c-table.cell>
+    <c-table.cell>{{ flight.opening_counters_fmt }}</c-table.cell>
+    <c-table.cell>{{ flight.closing_counters_fmt }}</c-table.cell>
+    <c-table.cell>{{ flight.boarding_bus_fmt }}</c-table.cell>
+    <c-table.cell>{{ flight.arrival_at_aircraft_fmt }}</c-table.cell>
+    {% with u=flight.dispatched_by %}
+    <c-table.cell title="{{ u.get_full_name }}">{{ u.get_identifier }}</c-table.cell>
+    {% endwith %}
+    {% with u=flight.counters_by %}
+    <c-table.cell title="{{ u.get_full_name }}">{{ u.get_identifier }}</c-table.cell>
+    {% endwith %}
+    <c-table.cell class="flex justify-end">{% partial sidebar %}</c-table.cell>
 </c-table.row>
 {% endpartialdef flight_row %}
+
+{% partialdef sidebar %}
+<c-sheet>
+    <c-sheet.trigger>
+        <c-button variant='outline'>View</c-button>
+    </c-sheet.trigger>
+    <c-sheet.content side='right'>
+        <c-sheet.header>
+        <c-sheet.title>Flight {{ flight.flight_number }} - {{ flight.date }}</c-sheet.title>
+        <c-sheet.description>
+            {{ flight.aircraft.full_name }}
+        </c-sheet.description>
+        </c-sheet.header>
+        <section>
+            {% with s=flight.supervisor_status %}
+                {% if s == 'Open' %}
+                    <c-badge class="uppercase">{{ s }}</c-badge>
+                {% else %}
+                    <c-badge variant="secondary" class="uppercase">{{ s }}</c-badge>
+                {% endif %}
+            {% endwith %}
+        </section>
+        <form action="" method="post" class="mt-8">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit-counters">
+            <input type="hidden" name="pk" value="{{ flight.pk }}">
+            <c-form.fieldset>
+                <h3 class="font-semibold text-lg opacity-60">Counters</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <c-form.field>
+                        <c-form.label>Opening</c-form.label>
+                        <c-input name='opening_counters' type='time' value="{{ flight.opening_counters|time:"H:i" }}"></c-input>
+                    </c-form.field>
+                    <c-form.field>
+                        <c-form.label>Closing</c-form.label>
+                        <c-input name='closing_counters' type='time' value="{{ flight.closing_counters|time:"H:i" }}"></c-input>
+                    </c-form.field>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <c-form.field>
+                        <c-form.label>Boarding Time</c-form.label>
+                        <c-input name='boarding_bus' type='time' value="{{ flight.boarding_bus|time:"H:i" }}"></c-input>
+                    </c-form.field>
+                    <c-form.field>
+                        <c-form.label>Arrival at A/C</c-form.label>
+                        <c-input name='arrival_at_aircraft' type='time' value="{{ flight.arrival_at_aircraft|time:"H:i" }}"></c-input>
+                    </c-form.field>
+                </div>
+                <div>
+                    <c-combobox
+                        :options='{{ user_options|safe }}'
+                        selected_value={{ flight.counters_by_id }}
+                        placeholder='Search user...'
+                        button_text='Counters by...'
+                        class='flex-1'
+                        width='w-full'
+                        name='counters_by_id'
+                    />
+                </div>
+                <div>
+                    <c-combobox
+                        :options='{{ user_options|safe }}'
+                        selected_value={{ flight.dispatched_by_id }}
+                        placeholder='Search user...'
+                        button_text='Dispatch by...'
+                        class='flex-1'
+                        width='w-full'
+                        name='dispatched_by_id'
+                    />
+                </div>
+            </c-form.fieldset>
+            <div class="flex justify-end gap-2 pt-4">
+                <c-button variant="outline" type="button" @click="hideSheet">Cancel</c-button>
+                <c-button type="submit">Save</c-button>
+            </div>
+        </form>
+    </c-sheet.content>
+</c-sheet>
+{% endpartialdef sidebar %}
 

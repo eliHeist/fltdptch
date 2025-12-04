@@ -1,20 +1,22 @@
 <c-layouts>
-	<div class="flex">
+	<div class="flex gap-2 justify-end mb-2">
 		{% partial form %}
 	</div>
 
-	<c-table>
-		<c-table.header>
-			<c-table.row>
-				<c-table.head>Registration No</c-table.head>
-				<c-table.head>Name</c-table.head>
-				<c-table.head></c-table.head>
-			</c-table.row>
-		</c-table.header>
-		<c-table.body id="rows">
-			{% for aircraft in aircrafts %}{% partial row %}{% endfor %}
-		</c-table.body>
-	</c-table>
+    <div class="border rounded-lg">
+        <c-table>
+            <c-table.header>
+                <c-table.row>
+                    <c-table.head>Registration No</c-table.head>
+                    <c-table.head>Name</c-table.head>
+                    <c-table.head></c-table.head>
+                </c-table.row>
+            </c-table.header>
+            <c-table.body id="rows">
+                {% for aircraft in aircrafts %}{% partial row %}{% endfor %}
+            </c-table.body>
+        </c-table>
+    </div>
 </c-layouts>
 
 {% partialdef row %}

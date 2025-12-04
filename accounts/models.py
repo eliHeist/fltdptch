@@ -100,6 +100,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         full_name = f"{self.first_name} {self.last_name}"
         return full_name.strip()
 
+    def get_name(self):
+        if self.get_profile():
+            return f"{self.get_profile().identifier} - {self.get_full_name()}"
+        return self.get_full_name()
+    
     def get_short_name(self):
         return self.first_name
 
@@ -122,7 +127,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_profile(self):
         """Returns the user profile"""
-        return self.profile or None
+        try:
+            return self.profile
+        except Exception:
+            return None
+    
+    def get_identifier(self):
+        profile = self.get_profile()
+        return profile.identifier if profile and profile.identifier else "N/A"
+    
     @property
     def is_staff(self):
         "Is the user a member of staff?"
@@ -138,8 +151,8 @@ class UserProfile(models.Model):
 
     identifier = models.CharField(_("Unique Identifier"), max_length=20, unique=True, null=True, blank=True)
     
-    gender = models.CharField(_("Gender"), max_length=1, choices=Genders.choices, default=Genders.MALE)
-    phone_1 = models.CharField(_("Phone (Main)"), max_length=20)
+    gender = models.CharField(_("Gender"), max_length=1, choices=Genders.choices, default=Genders.FEMALE)
+    phone_1 = models.CharField(_("Phone (Main)"), max_length=20, null=True, blank=True)
     phone_2 = models.CharField(_("Phone (Other)"), max_length=20, null=True, blank=True)
     
     

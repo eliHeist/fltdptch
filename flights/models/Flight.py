@@ -41,3 +41,9 @@ class Flight(models.Model):
         return f"{self.date} {self.flight_number}"
     
     supervisor_status = lambda self: "Closed" if self.supervisor_closed else "Open"
+
+    # Lambdas for formatted output
+    opening_counters_fmt = lambda self: self.opening_counters.strftime("%H:%M") if self.opening_counters else "-"
+    closing_counters_fmt = lambda self: self.closing_counters.strftime("%H:%M") if self.closing_counters else "-"
+    boarding_bus_fmt = lambda self: self.boarding_bus.strftime("%H:%M") if self.boarding_bus else "-"
+    arrival_at_aircraft_fmt = lambda self: self.arrival_at_aircraft.strftime("%H:%M") if self.arrival_at_aircraft else "-"
