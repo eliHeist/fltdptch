@@ -1,0 +1,61 @@
+<div id="table">
+	<div class="actions flex justify-end mb-2">
+		<c-dialog>
+			<c-dialog.trigger>Add a flight</c-dialog.trigger>
+			<c-dialog.content>
+				<c-dialog.header>
+					<c-dialog.title>Add a flight</c-dialog.title>
+					<c-dialog.description>
+						Enter flight details below.
+					</c-dialog.description>
+				</c-dialog.header>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="grid gap-4 py-4">
+                        <c-input type="text" name="flight_number" label="Flight Number" required placeholder="Enter flight number" />
+                        <div id="combobox" class="flex gap-2">
+                            <c-combobox
+                                :options='[
+                                    {% for aircraft in aircrafts %}
+                                        { value: "{{ aircraft.id }}", label: "{{ aircraft.full_name }}" },
+                                    {% endfor %}
+                                ]'
+                                placeholder='Search aircraft...'
+                                button_text='Select aircraft...'
+                                class='flex-1'
+                                width='w-full'
+                            />
+                        </div>
+                    </div>
+                </form>
+				<div class="flex justify-end gap-2 pt-4">
+					<c-button variant="outline" @click="hideDialog">Cancel</c-button>
+					<c-button variant="default">Submit</c-button>
+				</div>
+			</c-dialog.content>
+		</c-dialog>
+	</div>
+	<c-table>
+		<c-table.caption> Flights scheduled for this day. </c-table.caption>
+		<c-table.header>
+			<c-table.row>
+				<c-table.head></c-table.head>
+				<c-table.head class="w-[100px]">No.</c-table.head>
+				<c-table.head>Aircraft Reg</c-table.head>
+				<c-table.head>Status</c-table.head>
+			</c-table.row>
+		</c-table.header>
+		<c-table.body id="flights">
+			{% for flight in flights %}{% partial flight_row %}{% endfor %}
+		</c-table.body>
+	</c-table>
+</div>
+
+{% partialdef flight_row %}
+<c-table.row>
+	<c-table.cell><c-checkbox value="{{ flight.id }}" /></c-table.cell>
+	<c-table.cell>{{ flight.flight_number }}</c-table.cell>
+	<c-table.cell>{{ flight.aircraft.reg }}</c-table.cell>
+	<c-table.cell>{{ flight.supervisor_status }}</c-table.cell>
+</c-table.row>
+{% endpartialdef flight_row %}
