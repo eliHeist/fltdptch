@@ -57,7 +57,7 @@ class LoginView(View):
 class LogoutView(View):
     def post(self, request):
         logout(request)
-        return redirect(settings.LOGOUT_REDIRECT_URL)
+        return redirect("accounts:login")
 
 class PasswordResetView(views.PasswordResetView):
     form_class = CustomPasswordResetForm
