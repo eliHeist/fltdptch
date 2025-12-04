@@ -1,0 +1,62 @@
+<c-layouts>
+	<div class="flex">
+		{% partial form %}
+	</div>
+
+	<c-table>
+		<c-table.header>
+			<c-table.row>
+				<c-table.head>Registration No</c-table.head>
+				<c-table.head>Name</c-table.head>
+				<c-table.head></c-table.head>
+			</c-table.row>
+		</c-table.header>
+		<c-table.body id="rows">
+			{% for aircraft in aircrafts %}{% partial row %}{% endfor %}
+		</c-table.body>
+	</c-table>
+</c-layouts>
+
+{% partialdef row %}
+<c-table.row>
+	<c-table.cell>{{ aircraft.reg }}</c-table.cell>
+	<c-table.cell>{{ aircraft.name }}</c-table.cell>
+    {% with edit=True %}
+	<c-table.cell class="flex justify-end">{% partial form %}</c-table.cell>
+    {% endwith %}
+</c-table.row>
+{% endpartialdef row %} 
+
+{% partialdef form %}
+<c-dialog>
+	<c-dialog.trigger>{% if edit %}Edit{% else %}Add{% endif %}</c-dialog.trigger>
+	<c-dialog.content>
+		<c-dialog.header>
+			<c-dialog.title>{% if edit %}Plane details{% else %}Enter plane details{% endif %}</c-dialog.title>
+		</c-dialog.header>
+		<form action="" method="post">
+			{% csrf_token %}
+            {% if edit %}
+			<input type="hidden" name="action" value="edit-aircraft" />
+			<input type="hidden" name="id" value="{{ aircraft.id }}" />
+            {% else %}
+			<input type="hidden" name="action" value="add-aircraft" />
+            {% endif %}
+			<div class="flex flex-col gap-4">
+				<c-form.field>
+					<c-form.label>Registration No</c-form.label>
+					<c-input name="reg" label="Registration No" required value="{{ aircraft.reg }}"></c-input>
+				</c-form.field>
+				<c-form.field>
+					<c-form.label>Name</c-form.label>
+					<c-input name="name" label="Name" value="{{ aircraft.name }}"></c-input>
+				</c-form.field>
+			</div>
+			<div class="flex justify-end gap-2 pt-4">
+				<c-button variant="outline" @click="hideDialog">Cancel</c-button>
+				<c-button variant="default" type="submit">Submit</c-button>
+			</div>
+		</form>
+	</c-dialog.content>
+</c-dialog>
+{% endpartialdef form %}
