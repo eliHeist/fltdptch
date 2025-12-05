@@ -1,37 +1,53 @@
 <header class="flex items-center justify-between mb-2 border-b py-2 px-4">
-    <h2>FP</h2>
-    <c-navigation-menu>
-        <c-navigation-menu.list>
-            <c-navigation-menu.item>
-                <c-navigation-menu.link href='{% url 'frontend:flights' %}'>Flights</c-navigation-menu.link>
-            </c-navigation-menu.item>
-            <c-navigation-menu.item>
-                <c-navigation-menu.link href='{% url 'frontend:planning' %}'>Planning</c-navigation-menu.link>
-            </c-navigation-menu.item>
-            <c-navigation-menu.item>
-                <c-navigation-menu.link href='{% url 'frontend:aircrafts' %}'>Aircrafts</c-navigation-menu.link>
-            </c-navigation-menu.item>
-            <c-navigation-menu.item>
-                <c-navigation-menu.link href='{% url 'frontend:users' %}'>Users</c-navigation-menu.link>
-            </c-navigation-menu.item>
-            <c-navigation-menu.item>
-                <c-navigation-menu.link href='{% url 'frontend:analytics' %}'>Analytics</c-navigation-menu.link>
-            </c-navigation-menu.item>
-        </c-navigation-menu.list>
-    </c-navigation-menu>
-    <c-dropdown-menu class="relative">
-        <c-dropdown-menu.trigger class="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1 hover:bg-accent hover:text-accent-foreground transition-colors">
-            <div class="size-8 rounded-full bg-muted-foreground text-muted grid place-content-center">{{ request.user.get_identifier }}</div>
-        </c-dropdown-menu.trigger>
-        <c-dropdown-menu.content class='w-56 right-0'>
-            <c-dropdown-menu.label>My Account  {{ request.user.get_identifier }}</c-dropdown-menu.label>
-            <c-dropdown-menu.separator />
-            <c-dropdown-menu.item>{{ request.user.get_full_name }}</c-dropdown-menu.item>
-            <c-dropdown-menu.item>{{ request.user.email }}</c-dropdown-menu.item>
-            <c-dropdown-menu.separator />
-            <a href="{% url 'accounts:logout' %}">
-                <c-dropdown-menu.item class="cursor-pointer">Logout</c-dropdown-menu.item>
-            </a>
-        </c-dropdown-menu.content>
-    </c-dropdown-menu>
+	<h2>FP</h2>
+	<c-navigation-menu>
+		<c-navigation-menu.list>
+			<c-navigation-menu.item>
+				<c-navigation-menu.link href="{% url 'frontend:flights' %}" class="navlink"
+					>Flights</c-navigation-menu.link
+				>
+			</c-navigation-menu.item>
+			<c-navigation-menu.item>
+				<c-navigation-menu.link href="{% url 'frontend:planning' %}" class="navlink"
+					>Planning</c-navigation-menu.link
+				>
+			</c-navigation-menu.item>
+			<c-navigation-menu.item>
+				<c-navigation-menu.link href="{% url 'frontend:aircrafts' %}" class="navlink"
+					>Aircrafts</c-navigation-menu.link
+				>
+			</c-navigation-menu.item>
+			<c-navigation-menu.item>
+				<c-navigation-menu.link href="{% url 'frontend:users' %}" class="navlink"
+					>Users</c-navigation-menu.link
+				>
+			</c-navigation-menu.item>
+			<c-navigation-menu.item>
+				<c-navigation-menu.link href="{% url 'frontend:analytics' %}" class="navlink"
+					>Analytics</c-navigation-menu.link
+				>
+			</c-navigation-menu.item>
+		</c-navigation-menu.list>
+	</c-navigation-menu>
+	<c-dropdown-menu class="relative">
+		<c-dropdown-menu.trigger
+			class="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1 hover:bg-accent hover:text-accent-foreground transition-colors">
+			<div
+				class="size-8 rounded-full bg-muted-foreground text-muted grid place-content-center">
+				{{ request.user.get_identifier }}
+			</div>
+		</c-dropdown-menu.trigger>
+		<c-dropdown-menu.content class="w-56 right-0">
+			<c-dropdown-menu.label
+				>My Account {{ request.user.get_identifier }}</c-dropdown-menu.label
+			>
+			<c-dropdown-menu.separator />
+			<c-dropdown-menu.item>{{ request.user.get_full_name }}</c-dropdown-menu.item>
+			<c-dropdown-menu.item>{{ request.user.email }}</c-dropdown-menu.item>
+			<c-dropdown-menu.separator />
+			<a href="{% url 'accounts:logout' %}">
+				<c-dropdown-menu.item class="cursor-pointer">Logout</c-dropdown-menu.item>
+			</a>
+		</c-dropdown-menu.content>
+	</c-dropdown-menu>
 </header>
