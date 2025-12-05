@@ -50,7 +50,8 @@ class UsersView(LoginRequiredMixin, View):
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
-                password=User.objects.make_random_password(),
+                # password=User.objects.make_random_password(),
+                password="Pwrd0987",
             )
 
             user_profile, created = UserProfile.objects.get_or_create(user=user)
