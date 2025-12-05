@@ -11,6 +11,13 @@ class Flight(models.Model):
     boarding_bus = models.TimeField(null=True, blank=True)
     arrival_at_aircraft = models.TimeField(null=True, blank=True)
 
+    assigned_to = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="assigned_flights"
+    )
+
     counters_by = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
@@ -22,7 +29,7 @@ class Flight(models.Model):
         "accounts.User",
         on_delete=models.SET_NULL,
         null=True,
-        related_name="dispatch_flights"
+        related_name="dispatched_flights"
     )
 
     supervisor = models.ForeignKey(
