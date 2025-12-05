@@ -35,6 +35,8 @@ class FlightListView(LoginRequiredMixin, View):
 
         if action == "edit-counters":
             self._edit_counters(pk, request)
+        if action == "dispatch-flight":
+            self._dispatch_flight(pk, request)
         return redirect("frontend:flights")
 
     def _edit_counters(self, pk, request):
@@ -43,13 +45,19 @@ class FlightListView(LoginRequiredMixin, View):
         closing_counters = request.POST.get("closing_counters")
         boarding_bus = request.POST.get("boarding_bus")
         arrival_at_aircraft = request.POST.get("arrival_at_aircraft")
-        counters_by_id = request.POST.get("counters_by_id")
-        dispatched_by_id = request.POST.get("dispatched_by_id")
 
         flight.opening_counters = opening_counters or None
         flight.closing_counters = closing_counters or None
         flight.boarding_bus = boarding_bus or None
         flight.arrival_at_aircraft = arrival_at_aircraft or None
-        flight.counters_by_id = counters_by_id or None
-        flight.dispatched_by_id = dispatched_by_id or None
+        flight.counters_by_id = request.user.pk
+        flight.save()
+    
+    def _dispatch_flight(self, pk, request):
+        flight = Flight.objects.get(pk=pk)
+        counters_by_id = request.POST.get("counters_by_id")
+        dispatched_by_id = request.POST.get("dispatched_by_id")
+        flight.counters_by_id = counters_by_id
+        flight.dispatched_by_id = dispatched_by_id
+        flight.status = Flight.Status.DISPATCHED
         flight.save()

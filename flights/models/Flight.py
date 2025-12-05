@@ -39,7 +39,11 @@ class Flight(models.Model):
         related_name="supervised_flights"
     )
 
-    supervisor_closed = models.BooleanField(default=False)
+    class Status(models.IntegerChoices):
+        OPEN = 0, "Open"
+        DISPATCHED = 1, "Dispatched"
+
+    status = models.PositiveSmallIntegerField(choices=Status.choices, default=Status.OPEN)
 
     class Meta:
         unique_together = ("date", "flight_number")
@@ -47,10 +51,18 @@ class Flight(models.Model):
     def __str__(self):
         return f"{self.date} {self.flight_number}"
     
-    supervisor_status = lambda self: "Closed" if self.supervisor_closed else "Open"
-
     # Lambdas for formatted output
     opening_counters_fmt = lambda self: self.opening_counters.strftime("%H:%M") if self.opening_counters else "-"
     closing_counters_fmt = lambda self: self.closing_counters.strftime("%H:%M") if self.closing_counters else "-"
     boarding_bus_fmt = lambda self: self.boarding_bus.strftime("%H:%M") if self.boarding_bus else "-"
     arrival_at_aircraft_fmt = lambda self: self.arrival_at_aircraft.strftime("%H:%M") if self.arrival_at_aircraft else "-"
+
+    counter_id = lambda self: self.counters_by_id or self.assigned_to_id
+    dispatcher_id = lambda self: self.dispatched_by_id or self.assigned_to_id
+
+    ready_for_dispatch = lambda self: all([
+        self.opening_counters is not None,
+        self.closing_counters is not None,
+        self.boarding_bus is not None,
+        self.arrival_at_aircraft is not None,
+    ])
