@@ -12,4 +12,5 @@ dependencies = [
     "djangosetupheist>=0.6.2",
     "fpdf2>=2.8.5",
     "pillow>=12.0.0",
+    "whitenoise>=6.11.0",
 ]

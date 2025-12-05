@@ -36,3 +36,5 @@ sqlparse==0.5.4
     # via django
 tzdata==2025.2
     # via django
+whitenoise==6.11.0
+    # via fltdptch (pyproject.toml)
