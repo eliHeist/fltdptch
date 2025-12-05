@@ -1,0 +1,72 @@
+<c-layouts>
+	<div class="flex gap-2 justify-end mb-2">
+		{% partial form %}
+	</div>
+
+    <c-card>
+        <c-table>
+            <c-table.header>
+                <c-table.row>
+                    <c-table.head>Date</c-table.head>
+                    <c-table.head>Reference</c-table.head>
+                    <c-table.head>People Count</c-table.head>
+                    <c-table.head></c-table.head>
+                </c-table.row>
+            </c-table.header>
+            <c-table.body id="rows">
+                {% for booking in bookings %}{% partial row %}{% endfor %}
+            </c-table.body>
+        </c-table>
+    </c-card>
+</c-layouts>
+
+{% partialdef row %}
+<c-table.row>
+	<c-table.cell>{{ booking.date }}</c-table.cell>
+	<c-table.cell>{{ booking.reference }}</c-table.cell>
+	<c-table.cell>{{ booking.person_count }}</c-table.cell>
+    {% with edit=True %}
+	<c-table.cell class="flex justify-end">{% partial form %}</c-table.cell>
+    {% endwith %}
+</c-table.row>
+{% endpartialdef row %} 
+
+{% partialdef form %}
+<c-dialog>
+	<c-dialog.trigger>{% if edit %}Edit{% else %}Add{% endif %}</c-dialog.trigger>
+	<c-dialog.content>
+		<c-dialog.header>
+			<c-dialog.title>{% if edit %}Booking details{% else %}Enter booking details{% endif %}</c-dialog.title>
+		</c-dialog.header>
+		<form action="" method="post">
+			{% csrf_token %}
+            {% if edit %}
+			<input type="hidden" name="action" value="edit-booking" />
+			<input type="hidden" name="pk" value="{{ booking.pk }}" />
+            {% else %}
+			<input type="hidden" name="action" value="add-booking" />
+            {% endif %}
+			<div class="flex flex-col gap-4">
+				<c-form.field>
+					<c-form.label>Reference No</c-form.label>
+					<c-input name="reference" required value="{{ booking.reference }}"></c-input>
+				</c-form.field>
+                <div class="grid grid-cols-2 gap-2">
+                    <c-form.field>
+                        <c-form.label>Date</c-form.label>
+                        <c-input name="date" type="date" required value="{{ booking.date|date:'Y-m-d' }}"></c-input>
+                    </c-form.field>
+                    <c-form.field>
+                        <c-form.label>Person Count</c-form.label>
+                        <c-input type="number" name="person_count" value="{{ booking.person_count }}"></c-input>
+                    </c-form.field>
+                </div>
+			</div>
+			<div class="flex justify-end gap-2 pt-4">
+				<c-button variant="outline" @click="hideDialog">Cancel</c-button>
+				<c-button variant="default" type="submit">Submit</c-button>
+			</div>
+		</form>
+	</c-dialog.content>
+</c-dialog>
+{% endpartialdef form %}
