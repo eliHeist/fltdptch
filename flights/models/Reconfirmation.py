@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Reconfirmation(models.Model):
-    date_for = models.DateField()
+    date_for = models.DateField(unique=True)
     assignees = models.ManyToManyField("accounts.User")
     date_sent = models.DateTimeField(null=True, blank=True)
 

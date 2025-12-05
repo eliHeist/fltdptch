@@ -1,6 +1,38 @@
 <c-layouts>
 
-    
+    <section class="mb-6">
+        <h1 class="text-xl">Planning Center</h1>
+        <p class="text-muted-foreground mb-4">Manage flight planning and reconfirmation assignments for {{ date }}</p>
+        {% if reconfirmation and reconfirmation.date_sent %}
+        <div class="flex gap-2">
+            <c-badge title="Reconfirmations have been sent.">RECONFIRMATIONS SENT</c-badge>
+        </div>
+        {% elif reconfirmation and not reconfirmation.date_sent %}
+        <div class="flex gap-2">
+            <c-badge variant="secondary" title="Reconfirmations have been assigned but not yet sent.">RECONFIRMATIONS PENDING</c-badge>
+        </div>
+        {% else %}
+        <div class="flex gap-2">
+            <c-badge variant="destructive" title="Reconfirmations have not been set yet.">RECONFIRMATIONS UNSET</c-badge>
+        </div>
+        {% endif %}
+        <div class="flex justify-between mt-4 gap-4">
+            <form action="" method="get" x-data>
+                {% comment %} {% csrf_token %} {% endcomment %}
+                <c-input type="date" name="date" value="{{ date|date:'Y-m-d' }}" required @change="$el.parentElement.submit()" />
+            </form>
+            <form action="" method="post" x-data class="flex items-center gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="set-reconfirmation-assignees" />
+                {% comment %} {% csrf_token %} {% endcomment %}
+                <c-multiselect :options="{{ user_options|safe }}" selected_values="{{ selected_users|safe }}" name="assignee_ids" />
+                <c-button type="submit" variant="secondary">
+                    <span class="icon-save"></span>
+                    Save
+                </c-button>
+            </form>
+        </div>
+    </section>
 
     {% include "frontend/flights/components/plan-table.html" %}
 </c-layouts>

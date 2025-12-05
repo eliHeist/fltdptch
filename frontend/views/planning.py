@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 
-from flights.models import Aircraft, Flight
+from flights.models import Aircraft, Flight, Reconfirmation
 
 User = get_user_model()
 
@@ -26,11 +26,19 @@ class PlanningView(LoginRequiredMixin, View):
 
         user_options = [{'value': f"{user.id}", 'label': user.get_name()} for user in users]
 
+        reconfirmation = Reconfirmation.objects.filter(date_for=date).first()
+
+        print(reconfirmation.assignees.all())
+        
+        selected_users = [str(uid) for uid in reconfirmation.assignees.all().values_list('id', flat=True)] if reconfirmation else []
+
         context = {
             "flights": flights,
             "aircraft_options": aircraft_options,
             "user_options": user_options,
             "date": date,
+            "selected_users": list(selected_users),
+            "reconfirmation": reconfirmation,
         }
         
         return render(request, "frontend/flights/planning-center.html", context)
@@ -39,11 +47,14 @@ class PlanningView(LoginRequiredMixin, View):
         date_str = request.GET.get("date")
         date = parse_date(date_str) if date_str else timezone.localtime(timezone.now()).date()
 
+        print(args)
+
         base_url = reverse("frontend:planning")
         query_string = urlencode({"date": date.strftime("%Y-%m-%d")})
         url = f"{base_url}?{query_string}"
 
         action = request.POST.get("action")
+
         if action == "add-flight":
             flight_number = request.POST.get("flight_number")
             aircraft_id = request.POST.get("aircraft_id")
@@ -91,4 +102,11 @@ class PlanningView(LoginRequiredMixin, View):
                     pass
             flight.save()
 
+        elif action == "set-reconfirmation-assignees":
+            assignee_ids = request.POST.getlist("assignee_ids")
+            print()
+            reconfirmation, created = Reconfirmation.objects.get_or_create(date_for=date)
+            assignees = User.objects.filter(id__in=assignee_ids)
+            reconfirmation.assignees.set(assignees)
+        
         return redirect(url)

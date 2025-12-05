@@ -1,0 +1,212 @@
+<c-vars
+	placeholder="Search..."
+	button_text="Select..."
+	width="w-[360px]"
+	selected_values="[]"
+	default_open="false"
+	name="" />
+
+<div
+	x-data="{
+    open: {{ default_open|lower }},
+    values: {{ selected_values|default:'[]'|safe }},
+    options: {{ options|default:'[]'|safe }},
+    search: '',
+    highlightedIndex: -1,
+    filteredOptions: [],
+
+    init() {
+      this.updateFilteredOptions();
+
+      // ensure highlighted index points to first item when opened or search changes
+      this.$watch('search', () => {
+        this.updateFilteredOptions();
+        this.highlightedIndex = this.filteredOptions.length > 0 ? 0 : -1;
+      });
+
+      this.$watch('open', (v) => {
+        if (v) {
+          this.updateFilteredOptions();
+          this.$nextTick(() => { this.$refs.searchInput.focus(); });
+        }
+      });
+
+      // keyboard nav when open
+      this.$watch('open', (isOpen) => {
+        if (isOpen) {
+          document.addEventListener('keydown', this.handleKeyDown);
+        } else {
+          document.removeEventListener('keydown', this.handleKeyDown);
+        }
+      });
+    },
+
+    updateFilteredOptions() {
+      const lower = (this.search || '').toLowerCase();
+      this.filteredOptions = this.options.filter(opt => {
+        // exclude already selected
+        if (this.values.includes(String(opt.value)) || this.values.includes(opt.value)) return false;
+        return !lower || (opt.label || '').toLowerCase().includes(lower);
+      });
+    },
+
+    // add tag
+    addValue(val) {
+      const v = String(val);
+      if (!this.values.includes(v)) {
+        this.values.push(v);
+      }
+      this.search = '';
+      this.updateFilteredOptions();
+      this.$refs.searchInput.focus();
+    },
+
+    // remove tag
+    removeValue(val) {
+      const v = String(val);
+      this.values = this.values.filter(x => x !== v);
+      this.updateFilteredOptions();
+      this.$refs.searchInput.focus();
+    },
+
+    // value click
+    handleValueClick(val){
+        const v = String(val);
+        if (this.values.includes(v)){
+            this.removeValue(v)
+        }
+        else {
+            this.addValue(v)
+        }
+    },
+
+    // keyboard selection
+    selectHighlighted() {
+      if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredOptions.length) {
+        this.addValue(this.filteredOptions[this.highlightedIndex].value);
+      }
+    },
+
+    handleKeyDown(e) {
+      if (!this.open) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.highlightedIndex = (this.highlightedIndex + 1) % this.filteredOptions.length;
+        this.scrollToHighlighted();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.highlightedIndex = (this.highlightedIndex - 1 + this.filteredOptions.length) % this.filteredOptions.length;
+        this.scrollToHighlighted();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        this.selectHighlighted();
+      } else if (e.key === 'Backspace') {
+        // if search empty, remove last tag
+        if (!this.search) {
+          const last = this.values[this.values.length - 1];
+          if (last !== undefined) this.removeValue(last);
+        }
+      } else if (e.key === 'Escape') {
+        this.open = false;
+      }
+    },
+
+    scrollToHighlighted() {
+      this.$nextTick(() => {
+        if (!this.$refs.optionsContainer) return;
+        const el = this.$refs.optionsContainer.querySelector(`[data-index='${this.highlightedIndex}']`);
+        if (el) el.scrollIntoView({ block: 'nearest' });
+      });
+    }
+  }"
+	class="relative {% if class %}{{ class }}{% endif %}" {{ attrs }}>
+	{% if name %}
+	<template x-for="val in values" :key="val">
+		<input type="hidden" name="{{ name }}" x-bind:value="val" />
+	</template>
+	{% endif %}
+
+	<div class="rounded-md border p-1 flex flex-wrap items-center gap-1" @click="open = true">
+		<!-- Selected tags -->
+		<template x-for="val in values" :key="val">
+			<span
+				class="inline-flex items-center gap-2 bg-muted rounded px-2 py-1 text-sm">
+				<span
+					x-text="(options.find(o => String(o.value) === String(val)) || {label: val}).label"></span>
+				<button
+					type="button"
+					@click.stop="handleValueClick(val)"
+					class="opacity-70 hover:opacity-100 cursor-pointer">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="12"
+						height="12"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+				</button>
+			</span>
+		</template>
+
+		<!-- Search input -->
+		<input
+			x-ref="searchInput"
+			x-model="search"
+			@input="updateFilteredOptions(); highlightedIndex = filteredOptions.length > 0 ? 0 : -1"
+			@keydown.enter.prevent="selectHighlighted()"
+			@keydown.arrow-down.prevent="highlightedIndex = (highlightedIndex + 1) % filteredOptions.length; scrollToHighlighted()"
+			@keydown.arrow-up.prevent="highlightedIndex = (highlightedIndex - 1 + filteredOptions.length) % filteredOptions.length; scrollToHighlighted()"
+			class="flex-1 w-[4rem] p-1 text-sm bg-transparent outline-none"
+			placeholder="{{ placeholder }}" />
+
+		<!-- Toggle open caret -->
+		<button type="button" class="ml-1 p-1" @click.stop="open = !open" aria-label="Toggle">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="18"
+				height="18"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round">
+				<path d="M6 9l6 6 6-6"></path>
+			</svg>
+		</button>
+	</div>
+
+	<!-- Options panel -->
+	<div
+		x-show="open"
+        x-cloak
+		x-transition
+        @click.away="open = false"
+		class="absolute mt-2 z-10 rounded-md border bg-card text-card-foreground shadow-sm">
+		<div x-ref="optionsContainer" class="max-h-60 overflow-y-auto p-1">
+			<div
+				x-show="filteredOptions.length === 0"
+				class="py-4 text-center text-sm text-muted-foreground">
+				No matches.
+			</div>
+
+			<template x-for="(opt, index) in filteredOptions" :key="opt.value">
+				<div
+					:data-index="index"
+					@click="handleValueClick(opt.value)"
+					@mousemove="highlightedIndex = index"
+					class="flex items-center justify-between gap-1 cursor-pointer px-2 py-1 text-sm rounded-sm"
+					:class="{ 'bg-accent text-accent-foreground': highlightedIndex === index }">
+					<div class="truncate" x-text="opt.label"></div>
+					<div class="text text-muted-foreground">+</div>
+				</div>
+			</template>
+		</div>
+	</div>
+</div>

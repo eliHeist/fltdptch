@@ -1,16 +1,15 @@
 <div id="table">
-	<div class="actions flex gap-2 justify-end mb-2">
-        <form action="" method="get" x-data>
-            {% comment %} {% csrf_token %} {% endcomment %}
-            <c-input type="date" name="date" value="{{ date|date:'Y-m-d' }}" required @change="$el.parentElement.submit()" />
-        </form>
+	<div class="actions flex gap-2 justify-between mb-2">
+        <h2 class="text-lg">
+            Flights
+        </h2>
 		{% partial form %}
 	</div>
-    <div class="border rounded-lg">
+    <div class="border rounded-lg overflow-hidden">
         <c-table>
             <c-table.header>
                 <c-table.row>
-                    <c-table.head class="w-[2rem]"></c-table.head>
+                    {% comment %} <c-table.head class="w-[2rem]"></c-table.head> {% endcomment %}
                     <c-table.head class="w-[6rem]">No.</c-table.head>
                     <c-table.head>Aircraft Reg</c-table.head>
                     <c-table.head>Assigned to</c-table.head>
@@ -26,7 +25,7 @@
 
 {% partialdef flight_row %}
 <c-table.row>
-	<c-table.cell class="w-[2rem]"><c-checkbox name="selected_flights" value="{{ flight.id }}" /></c-table.cell>
+	{% comment %} <c-table.cell class="w-[2rem]"><c-checkbox name="selected_flights" value="{{ flight.id }}" /></c-table.cell> {% endcomment %}
 	<c-table.cell class="w-[6rem]">{{ flight.flight_number }}</c-table.cell>
 	<c-table.cell title="{{ flight.aircraft.name }}">{{ flight.aircraft.reg }}</c-table.cell>
 	<c-table.cell>
