@@ -36,7 +36,7 @@ class LoginView(View):
             next_route = get_data.get('next')
             if next_route:
                 return redirect(next_route)
-            return redirect(settings.LOGIN_REDIRECT_URL)
+            return redirect("frontend:landing")
         
         user_obj = User.objects.filter(email=email).exists()
         email_error = "Email does not exist."
@@ -55,7 +55,7 @@ class LoginView(View):
         return render(request, 'registration/login.html', context)
 
 class LogoutView(View):
-    def post(self, request):
+    def get(self, request):
         logout(request)
         return redirect("accounts:login")
 
