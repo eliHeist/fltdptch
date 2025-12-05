@@ -13,7 +13,7 @@
                     <c-table.head class="w-[2rem]"></c-table.head>
                     <c-table.head class="w-[6rem]">No.</c-table.head>
                     <c-table.head>Aircraft Reg</c-table.head>
-                    <c-table.head>Status</c-table.head>
+                    <c-table.head>Assigned to</c-table.head>
                     <c-table.head></c-table.head>
                 </c-table.row>
             </c-table.header>
@@ -29,12 +29,11 @@
 	<c-table.cell class="w-[2rem]"><c-checkbox name="selected_flights" value="{{ flight.id }}" /></c-table.cell>
 	<c-table.cell class="w-[6rem]">{{ flight.flight_number }}</c-table.cell>
 	<c-table.cell title="{{ flight.aircraft.name }}">{{ flight.aircraft.reg }}</c-table.cell>
-    {% with s=flight.supervisor_status %}
 	<c-table.cell>
-        {% if s == 'Open' %}
-            <c-badge class="uppercase">{{ s }}</c-badge>
+        {% if flight.assigned_to %}
+            <c-badge variant="secondary" class="uppercase">{{ flight.assigned_to.get_name }}</c-badge>
         {% else %}
-            <c-badge variant="secondary" class="uppercase">{{ s }}</c-badge>
+            -
         {% endif %}
     </c-table.cell>
 	<c-table.cell class="flex justify-end">
@@ -42,7 +41,6 @@
         {% partial form %}
         {% endwith %}
     </c-table.cell>
-    {% endwith %}
 </c-table.row>
 {% endpartialdef flight_row %}
 
@@ -64,6 +62,7 @@
             {% csrf_token %}
             {% if edit %}
             <input type="hidden" name="action" value="edit-flight" />
+            <input type="hidden" name="pk" value="{{ flight.pk }}" />
             {% else %}
             <input type="hidden" name="action" value="add-flight" />
             {% endif %}
@@ -79,6 +78,18 @@
                         class='flex-1'
                         width='w-full'
                         name='aircraft_id'
+                        required
+                    />
+                </div>
+                <div id="combobox" class="flex gap-2">
+                    <c-combobox
+                        :options='{{ user_options|safe }}'
+                        selected_value={{ flight.assigned_to.pk }}
+                        placeholder='Search user...'
+                        button_text='Assign to...'
+                        class='flex-1'
+                        width='w-full'
+                        name='assignee_id'
                         required
                     />
                 </div>
