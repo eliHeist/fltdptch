@@ -35,7 +35,7 @@ class FlightListView(LoginRequiredMixin, View):
 
         if action == "edit-counters":
             self._edit_counters(pk, request)
-        return redirect("flights:list")
+        return redirect("frontend:flights")
 
     def _edit_counters(self, pk, request):
         flight = Flight.objects.get(pk=pk)

@@ -1,0 +1,312 @@
+<c-layouts>
+	<div class="max-w-7xl mx-auto p-6">
+		<h1 class="text-3xl font-bold mb-6">Analytics Dashboard</h1>
+
+		<section id="filters" class="mb-6">
+			<form method="get" class="space-y-3">
+				<div class="flex flex-wrap gap-2">
+                    {% if period == 'today' %}
+                    <c-button type="submit" name="period" value="today">Today</c-button>
+                    {% else %}
+                    <c-button type="submit" name="period" value="today" variant="muted">Today</c-button>
+                    {% endif %}
+
+                    {% if period == 'this_week' %}
+                    <c-button type="submit" name="period" value="this_week">This week</c-button>
+                    {% else %}
+                    <c-button type="submit" name="period" value="this_week" variant="muted">This week</c-button>
+                    {% endif %}
+
+                    {% if period == 'this_month' %}
+                    <c-button type="submit" name="period" value="this_month">This month</c-button>
+                    {% else %}
+                    <c-button type="submit" name="period" value="this_month" variant="muted">This month</c-button>
+                    {% endif %}
+
+                    {% if period == 'this_quarter' %}
+                    <c-button type="submit" name="period" value="this_quarter">This quarter</c-button>
+                    {% else %}
+                    <c-button type="submit" name="period" value="this_quarter" variant="muted">This quarter</c-button>
+                    {% endif %}
+
+                    {% if period == 'custom' %}
+                    <c-button type="submit" name="period" value="custom">Custom range</c-button>
+                    {% else %}
+                    <c-button type="submit" name="period" value="custom" variant="muted">Custom range</c-button>
+                    {% endif %}
+				</div>
+
+				<div class="flex items-center gap-3">
+					<label class="text-sm text-muted-foreground"
+						>Start
+						<input
+							type="date"
+							name="start"
+							value="{% if start %}{{ start|date:'Y-m-d' }}{% endif %}"
+							class="ml-2 border rounded-md p-1 text-sm" />
+					</label>
+					<label class="text-sm text-muted-foreground"
+						>End
+						<input
+							type="date"
+							name="end"
+							value="{% if end %}{{ end|date:'Y-m-d' }}{% endif %}"
+							class="ml-2 border rounded-md p-1 text-sm" />
+					</label>
+					<button
+						type="submit"
+						name="period"
+						value="custom"
+						class="ml-2 px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm">
+						Apply
+					</button>
+					<a href="?" class="ml-auto text-sm text-muted-foreground underline">Reset</a>
+				</div>
+			</form>
+		</section>
+
+		<!-- Overview Section -->
+		<section class="mb-8">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<c-card>
+					<div class="space-y-2">
+						<p class="text-sm text-muted-foreground font-medium">Total flights</p>
+						<p class="text-3xl font-bold">{{ stats_data.overall.total_flights }}</p>
+					</div>
+				</c-card>
+
+				<c-card>
+					<div class="space-y-2">
+						<p class="text-sm text-muted-foreground font-medium">Unique aircraft</p>
+						<p class="text-3xl font-bold">{{ stats_data.overall.unique_aircraft }}</p>
+					</div>
+				</c-card>
+			</div>
+		</section>
+
+		<!-- Tabs Section -->
+		<c-tabs default_value="flights">
+			<c-tabs.list>
+				<c-tabs.trigger value="flights">
+					<div class="flex items-center gap-1">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="mr-2">
+							<path d="M6 9l6 6 6-6" />
+						</svg>
+						Flights by Date
+					</div>
+				</c-tabs.trigger>
+
+				<c-tabs.trigger value="users">
+					<div class="flex items-center gap-1">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="mr-2">
+							<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+							<circle cx="9" cy="7" r="4" />
+							<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+							<path d="M16 3.13a4 4 0 0 1 0 7.75" />
+						</svg>
+						User Performance
+					</div>
+				</c-tabs.trigger>
+
+				<c-tabs.trigger value="aircraft">
+					<div class="flex items-center gap-1">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="mr-2">
+							<path
+								d="M17.8 19.2 16 11l3.5-6.1A2 2 0 0 0 15 2.5h-1.48a2 2 0 0 0-1.93 1.45L9 9H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5l1.06 5.95a2 2 0 0 0 1.94 1.55h2a2 2 0 0 0 2-2.5l-.5-2.72a2 2 0 0 0 .236-.991z" />
+						</svg>
+						Aircraft Stats
+					</div>
+				</c-tabs.trigger>
+			</c-tabs.list>
+
+			<!-- Flights Tab Content -->
+			<c-tabs.content value="flights">
+				<div class="py-6 space-y-6">
+					{% for date, data in grouped_data.items %}
+					<c-card>
+						<div>
+							<div class="flex justify-between items-center p-2 border-b">
+								<h3 class="text-lg font-semibold">{{ date|date:"l, F j, Y" }}</h3>
+								<c-badge variant="secondary">{{ data.count }} flight{% if data.count != 1 %}s{% endif %}</c-badge>
+							</div>
+
+							<c-table>
+								<c-table.header>
+									<c-table.row>
+										<c-table.head>Flight</c-table.head>
+										<c-table.head>Aircraft</c-table.head>
+										<c-table.head>Open</c-table.head>
+										<c-table.head>Close</c-table.head>
+										<c-table.head>Bus</c-table.head>
+										<c-table.head>Arrival</c-table.head>
+										<c-table.head>Counters</c-table.head>
+										<c-table.head>Dispatch</c-table.head>
+									</c-table.row>
+								</c-table.header>
+								<c-table.body>
+									{% for flight in data.flights %}
+									<c-table.row class="text-foreground/60">
+										<c-table.cell>{{ flight.flight_number }}</c-table.cell>
+										<c-table.cell>
+											{% if flight.aircraft %} {{ flight.aircraft.reg }} {%
+											else %}
+											<span class="text-muted-foreground">—</span>
+											{% endif %}
+										</c-table.cell>
+										<c-table.cell>
+											{{ flight.opening_counters_fmt }}
+										</c-table.cell>
+										<c-table.cell>
+											{{ flight.closing_counters_fmt }}
+										</c-table.cell>
+										<c-table.cell> {{ flight.boarding_bus_fmt }} </c-table.cell>
+										<c-table.cell>
+											{{ flight.arrival_at_aircraft_fmt }}
+										</c-table.cell>
+										<c-table.cell>
+											{% with person=flight.counters_by %} 
+                                            {% if person %} 
+                                            {{ person.get_full_name }} {% else %}
+											<span class="text-muted-foreground">—</span>
+											{% endif %} {% endwith %}
+										</c-table.cell>
+										<c-table.cell>
+											{% with person=flight.dispatched_by %} {% if person %}
+											{{ person.get_full_name }} {% else %}
+											<span class="text-muted-foreground">—</span>
+											{% endif %} {% endwith %}
+										</c-table.cell>
+									</c-table.row>
+									{% endfor %}
+								</c-table.body>
+							</c-table>
+						</div>
+					</c-card>
+					{% empty %}
+					<div class="text-center py-8 text-muted-foreground">No flights available.</div>
+					{% endfor %}
+				</div>
+			</c-tabs.content>
+
+			<!-- Users Tab Content -->
+			<c-tabs.content value="users">
+				<div class="py-6">
+					<c-card>
+						<c-table>
+							<c-table.header>
+								<c-table.row>
+									<c-table.head>User</c-table.head>
+									<c-table.head>Counters</c-table.head>
+									<c-table.head>Dispatches</c-table.head>
+									<c-table.head>Total</c-table.head>
+								</c-table.row>
+							</c-table.header>
+							<c-table.body>
+								{% for user, ustats in stats_data.users.items %}
+								<c-table.row class="text-foreground/60">
+									<c-table.cell>
+										<span class="font-medium"
+											>{{ user.get_full_name|default:user.username }}</span
+										>
+									</c-table.cell>
+									<c-table.cell>
+										<c-badge variant="accent"
+											>{{ ustats.counters_count }}</c-badge
+										>
+									</c-table.cell>
+									<c-table.cell>
+										<c-badge variant="secondary"
+											>{{ ustats.dispatches_count }}</c-badge
+										>
+									</c-table.cell>
+									<c-table.cell>
+										<span class="font-semibold">
+											{{ ustats.counters_count|add:ustats.dispatches_count }}
+										</span>
+									</c-table.cell>
+								</c-table.row>
+								{% empty %}
+								<c-table.row>
+									<c-table.cell
+										colspan="4"
+										class="text-center text-muted-foreground py-8">
+										No user stats available.
+									</c-table.cell>
+								</c-table.row>
+								{% endfor %}
+							</c-table.body>
+						</c-table>
+					</c-card>
+				</div>
+			</c-tabs.content>
+
+			<!-- Aircraft Tab Content -->
+			<c-tabs.content value="aircraft">
+				<div class="py-6">
+					<div class="grid">
+						<c-card>
+							<div>
+								<c-table>
+									<c-table.header>
+										<c-table.row>
+											<c-table.head>Aircraft</c-table.head>
+											<c-table.head>Registration</c-table.head>
+											<c-table.head>Flights</c-table.head>
+										</c-table.row>
+									</c-table.header>
+									<c-table.body>
+										{% for _, data in aircrafts_data.items %}
+										<c-table.row class="text-foreground/60">
+											<c-table.cell> {{ data.aircraft.name }} </c-table.cell>
+											<c-table.cell>
+												<span class="font-mono font-semibold"
+													>{{ data.aircraft.reg }}</span
+												>
+											</c-table.cell>
+											<c-table.cell>
+												<c-badge variant="secondary"
+													>{{ data.flight_count }}</c-badge
+												>
+											</c-table.cell>
+										</c-table.row>
+										{% endfor %}
+									</c-table.body>
+								</c-table>
+							</div>
+						</c-card>
+					</div>
+				</div>
+			</c-tabs.content>
+		</c-tabs>
+	</div>
+</c-layouts>

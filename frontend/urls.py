@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import flights, planning, aircrafts, users
+from .views import flights, planning, aircrafts, users, analytics
 
 app_name = "frontend"
 
@@ -8,4 +8,5 @@ urlpatterns = [
     path("planning/", planning.PlanningView.as_view(), name="planning"),
     path("aircrafts/", aircrafts.AircraftsListView.as_view(), name="aircrafts"),
     path("users/", users.UsersView.as_view(), name="users"),
+    path("analytics/", analytics.AnalyticsView.as_view(), name="analytics"),
 ]

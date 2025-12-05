@@ -1,8 +1,8 @@
 <div id="table">
 	<div class="actions flex gap-2 justify-end mb-2">
-        <form action="" method="get">
-            {% csrf_token %}
-            <c-input type="date" name="date" value="{{ date|date:'Y-m-d' }}" required />
+        <form action="" method="get" x-data>
+            {% comment %} {% csrf_token %} {% endcomment %}
+            <c-input type="date" name="date" value="{{ date|date:'Y-m-d' }}" required @change="$el.parentElement.submit()" />
         </form>
 		{% partial form %}
 	</div>
@@ -62,7 +62,11 @@
         </c-dialog.header>
         <form action="" method="post">
             {% csrf_token %}
+            {% if edit %}
             <input type="hidden" name="action" value="edit-flight" />
+            {% else %}
+            <input type="hidden" name="action" value="add-flight" />
+            {% endif %}
             <input type="hidden" name="date" value="{{ flight.date|date:'Y-m-d' }}" />
             <div class="grid gap-4 py-4">
                 <c-input type="text" name="flight_number" label="Flight Number" required placeholder="Enter flight number" value="{{ flight.flight_number }}" />

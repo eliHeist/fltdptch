@@ -8,6 +8,8 @@
 
     {% if variant == 'default' %}border-transparent bg-primary text-primary-foreground shadow-sm hover:bg-primary/80
     {% elif variant == 'secondary' %}border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80
+    {% elif variant == 'accent' %}border-transparent bg-accent text-accent-foreground hover:bg-accent/80
+    {% elif variant == 'muted' %}border-transparent bg-muted text-muted-foreground hover:bg-muted/80
     {% elif variant == 'destructive' %}border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80
     {% elif variant == 'outline' %}text-foreground
     {% endif %}

@@ -1,4 +1,6 @@
+from urllib.parse import urlencode
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -28,8 +30,12 @@ class PlanningView(LoginRequiredMixin, View):
         return render(request, "frontend/flights/planning-center.html", context)
     
     def post(self, request, *args, **kwargs):
-        date_str = request.POST.get("date")
+        date_str = request.GET.get("date")
         date = parse_date(date_str)
+
+        base_url = reverse("frontend:planning")
+        query_string = urlencode({"date": date_str})
+        url = f"{base_url}?{query_string}"
 
         action = request.POST.get("action")
         if action == "add-flight":
@@ -38,10 +44,10 @@ class PlanningView(LoginRequiredMixin, View):
 
             if not flight_number or not aircraft_id:
                 print("missing flight number or aircraft ID")
-                return redirect("frontend:planning")
+                return redirect(url)
             try:
                 aircraft = Aircraft.objects.get(id=aircraft_id)
-                Flight.objects.get_or_create(
+                flight, created = Flight.objects.get_or_create(
                     date=date,
                     flight_number=flight_number,
                     aircraft=aircraft,
@@ -50,4 +56,4 @@ class PlanningView(LoginRequiredMixin, View):
                 print("invalid ID")
                 pass
 
-        return redirect("frontend:planning")
+        return redirect(url)
