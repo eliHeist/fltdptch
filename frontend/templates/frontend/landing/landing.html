@@ -1,0 +1,78 @@
+
+<c-layouts>
+    <section class="py-4">
+        <h1 class="text-3xl font-bold">Welcome {{ request.user.get_full_name }}!</h1>
+    </section>
+    <div class="grid gap-4 grid-cols-2">
+        <c-card>
+            <div class="p-2 py-4">
+                <c-card.title>Flights</c-card.title>
+                <c-card.description>
+                    Flights assigned to me
+                </c-card.description>
+            </div>
+            <c-table>
+                <c-table.header>
+                    <c-table.head>No.</c-table.head>
+                    <c-table.head>A/C</c-table.head>
+                    <c-table.head>Status</c-table.head>
+                </c-table.header>
+                <c-table.body>
+                    {% for flight in flights %}
+                    <c-table.row>
+                        <c-table.cell>{{ flight.flight_number }}</c-table.cell>
+                        <c-table.cell>{{ flight.aircraft.reg }}</c-table.cell>
+                        <c-table.cell>{{ flight.current_status.1 }}</c-table.cell>
+                    </c-table.row>
+                    {% endfor %}
+                </c-table.body>
+            </c-table>
+        </c-card>
+        <c-card>
+            <div class="p-2">
+                <div class="py-4">
+                    <c-card.title>Reconfirmations</c-card.title>
+                    <c-card.description>
+                        Pending reconfirmations
+                    </c-card.description>
+                </div>
+                <ul class="">
+                    {% for rec in pending_reconfirmations %}
+                    {% with val=rec.pk %}
+                    <li class="flex gap-2 items-center py-1 h-8 text-sm">
+                        <div class="opacity-60 text-2xl">
+                            {{ forloop.counter }}
+                        </div>
+                        <div class="flex-1">
+                            <div>{{ rec.date_for }}</div>
+                            <div class="text-xs opacity-60">{{ rec.date_for|timeuntil }}</div>
+                        </div>
+                        <div>
+                            {% if rec.status.0 %}
+                            <c-badge class="uppercase">{{ rec.status.1 }}</c-badge>
+                            {% else %}
+                            <c-badge variant="secondary" class="uppercase">{{ rec.status.1 }}</c-badge>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reconfirm" />
+                                <input type="hidden" name="pk" value="{{ rec.pk }}" />
+                                <c-button variant="outline" size="xs" type="submit">
+                                    {% if rec.status.0 %}
+                                    Confirm
+                                    {% else %}
+                                    Reconfirm
+                                    {% endif %}
+                                </c-button>
+                            </form>
+                        </div>
+                    </li>
+                    {% endwith %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </c-card>
+    </div>
+</c-layouts>

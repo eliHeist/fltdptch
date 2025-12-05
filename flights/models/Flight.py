@@ -66,3 +66,11 @@ class Flight(models.Model):
         self.boarding_bus is not None,
         self.arrival_at_aircraft is not None,
     ])
+
+    @property
+    def current_status(self):
+        if self.status == Flight.Status.OPEN:
+            return [0, "Ready for dispatch"] if self.ready_for_dispatch else [1, "Pending"]
+        if self.status == Flight.Status.DISPATCHED:
+            return [2, "Dispatched"]
+        return [None, "Unknown"]

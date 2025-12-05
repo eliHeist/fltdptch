@@ -28,8 +28,6 @@ class PlanningView(LoginRequiredMixin, View):
 
         reconfirmation = Reconfirmation.objects.filter(date_for=date).first()
 
-        print(reconfirmation.assignees.all())
-        
         selected_users = [str(uid) for uid in reconfirmation.assignees.all().values_list('id', flat=True)] if reconfirmation else []
 
         context = {

@@ -14,7 +14,8 @@ class FlightListView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         date_str = request.GET.get("date")
         date = parse_date(date_str) if date_str else timezone.now().date()
-        flights = Flight.objects.filter(date=date).order_by("date", "flight_number")
+        # flights = Flight.objects.filter(date=date).order_by("flight_number")
+        flights = request.user.assigned_flights.filter(date=date).order_by("flight_number")
 
         users = User.objects.filter(is_active=True).order_by("last_name", "first_name")
 
