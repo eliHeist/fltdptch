@@ -39,7 +39,7 @@
                 <ul class="">
                     {% for rec in pending_reconfirmations %}
                     {% with val=rec.pk %}
-                    <li class="flex gap-2 items-center py-1 h-8 text-sm">
+                    <li class="flex gap-2 items-center py-2 text-sm">
                         <div class="opacity-60 text-2xl">
                             {{ forloop.counter }}
                         </div>
@@ -69,6 +69,7 @@
                             </form>
                         </div>
                     </li>
+                    {% if not forloop.last %}<c-separator />{% endif %}
                     {% endwith %}
                     {% endfor %}
                 </ul>
