@@ -2,7 +2,27 @@
 
 <c-layouts>
     <div class="flex justify-between mb-2">
-        <h2 class="text-xl">{{ date }}</h2>
+        <c-dialog>
+            <c-dialog.trigger as_child="true">
+                <h2 class="text-xl cursor-pointer">{{ date }}</h2>
+            </c-dialog.trigger>
+            <c-dialog.content>
+                <c-dialog.header>
+                    <c-dialog.title>Select date</c-dialog.title>
+                    <c-dialog.description>Pick a date to view flights for that day.</c-dialog.description>
+                </c-dialog.header>
+                <form method="get" class="pt-4 space-y-4">
+                    <c-form.field>
+                        <c-form.label>Date</c-form.label>
+                        <c-input name="date" type="date" value="{{ date|date:'Y-m-d' }}"></c-input>
+                    </c-form.field>
+                    <div class="flex justify-end gap-2">
+                        <c-button variant="outline" type="button" @click="hideDialog">Cancel</c-button>
+                        <c-button type="submit">Go</c-button>
+                    </div>
+                </form>
+            </c-dialog.content>
+        </c-dialog>
     </div>
     
     <div class="border rounded-lg">
