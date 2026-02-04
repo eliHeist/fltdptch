@@ -46,12 +46,12 @@ class UsersView(LoginRequiredMixin, View):
         identifier = request.POST.get("identifier")
 
         with transaction.atomic():
-            user = User.objects.create(
+            user = User.objects.create_user(
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
                 # password=User.objects.make_random_password(),
-                password="Pwrd0987",
+                password="Default1234",
             )
 
             user_profile, created = UserProfile.objects.get_or_create(user=user)

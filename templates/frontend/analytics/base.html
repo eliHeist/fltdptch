@@ -178,8 +178,7 @@
 									<c-table.row class="text-foreground/60">
 										<c-table.cell>{{ flight.flight_number }}</c-table.cell>
 										<c-table.cell>
-											{% if flight.aircraft %} {{ flight.aircraft.reg }} {%
-											else %}
+											{% if flight.aircraft %} {{ flight.aircraft.reg }} {%else %}
 											<span class="text-muted-foreground">—</span>
 											{% endif %}
 										</c-table.cell>
@@ -294,9 +293,7 @@
 												>
 											</c-table.cell>
 											<c-table.cell>
-												<c-badge variant="secondary"
-													>{{ data.flight_count }}</c-badge
-												>
+												<c-badge variant="secondary">{{ data.flight_count }}</c-badge>
 											</c-table.cell>
 										</c-table.row>
 										{% endfor %}
