@@ -18,7 +18,7 @@ class PasswordResetForm(auth_forms.PasswordResetForm):
 
 
 class CustomPasswordResetForm(auth_forms.PasswordResetForm):
-    def save(self, request=None, custom_message=None, domain="app.terekaonline.com", reset_type="reset", **kwargs):
+    def save(self, request=None, custom_message=None, domain="dakdot.pythonanywhere.com", reset_type="reset", **kwargs):
         protocol = "http"
         if settings.DEBUG:
             domain = "localhost:8000"
@@ -30,6 +30,7 @@ class CustomPasswordResetForm(auth_forms.PasswordResetForm):
             
         email = self.cleaned_data["email"]
         for user in self.get_users(email):
+            print(f"Preparing to send password reset email to {user}")
             context = {
                 'email': user.email,
                 'domain': domain,
@@ -49,4 +50,5 @@ class CustomPasswordResetForm(auth_forms.PasswordResetForm):
             email_message = EmailMultiAlternatives(subject, body, kwargs.get('from_email'), [user.email])
             email_message.attach_alternative(html_email, "text/html")
             email_message.send()
+            print(f"Sent password reset email to {user.email}")
 

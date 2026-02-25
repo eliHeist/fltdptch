@@ -2,10 +2,12 @@
 	<div class="h-screen grid place-content-center bg-base-200">
 		<div>
 			<h1 class="text-3xl font-bold text-primary text-center mb-8">FD</h1>
-            <c-card>
+            <c-card class="sm:min-w-md">
+                <c-card.header>
+                    <c-card.title>Login</c-card.title>
+                </c-card.header>
                 <c-card.content>
-                    <h1 class="card-title text-center">Login</h1>
-                    <form method="post">
+                    <form method="post" class="grid gap-4">
                         {% csrf_token %}
                         <c-form.field>
                             <c-form.label>Email</c-form.label>
@@ -21,9 +23,8 @@
                             <p class="label text-error">{{ email_error }}</p>
                             {% endif %}
                         </c-form.field>
-                        <div class="mt-4"></div>
-                        <a href="{% url 'accounts:reset_password' %}" class="text-secondary">Forgot Password?</a>
                         <div>
+                            <a href="{% url 'accounts:reset_password' %}" class="opacity-60">Forgot Password?</a>
                             <c-button type="submit" class="w-full">Login</c-button>
                         </div>
                     </form>

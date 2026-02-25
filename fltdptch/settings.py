@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django_cotton.apps.SimpleAppConfig",
     "template_partials.apps.SimpleAppConfig",
 
-    # "widget_tweaks",
+    "widget_tweaks",
     "django_htmx",
 ]
 INSTALLED_APPS += getAppNames()

@@ -65,11 +65,12 @@ class PasswordResetView(views.PasswordResetView):
     html_email_template_name = 'registration/password_reset_email.html'
 
     def form_valid(self, form):
+        print("form is valid")
         # Inject custom context into the email
         return form.save(
             request=self.request,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            custom_message='DotScholar mail! Click below to reset your password.',
+            custom_message='Click below to reset your password.',
         ) or super().form_valid(form)
 
 class PasswordResetDoneView(views.PasswordResetDoneView):
