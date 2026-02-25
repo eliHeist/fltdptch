@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 
 from django.utils import timezone
 from django.utils.dateparse import parse_date
+import json
 
 from flights.models import Aircraft, Flight, Reconfirmation
 
@@ -106,5 +107,23 @@ class PlanningView(LoginRequiredMixin, View):
             reconfirmation, created = Reconfirmation.objects.get_or_create(date_for=date)
             assignees = User.objects.filter(id__in=assignee_ids)
             reconfirmation.assignees.set(assignees)
+        
+        elif action == "reschedule-flights":
+            flight_ids_json = request.POST.get("flight_ids")
+            new_date_str = request.POST.get("new_date")
+            
+            try:
+                flight_ids = json.loads(flight_ids_json)
+                new_date = parse_date(new_date_str)
+                
+                if flight_ids and new_date:
+                    flights = Flight.objects.filter(id__in=flight_ids)
+                    flights.update(date=new_date)
+                    
+                    # Redirect to the new date's planning page
+                    query_string = urlencode({"date": new_date.strftime("%Y-%m-%d")})
+                    url = f"{reverse('frontend:planning')}?{query_string}"
+            except (json.JSONDecodeError, TypeError):
+                pass
         
         return redirect(url)

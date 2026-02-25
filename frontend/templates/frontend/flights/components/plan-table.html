@@ -9,7 +9,7 @@
         <c-table>
             <c-table.header>
                 <c-table.row>
-                    {% comment %} <c-table.head class="w-[2rem]"></c-table.head> {% endcomment %}
+                    <c-table.head class="w-[2rem]"><c-checkbox id="select-all-flights" data-select-all /></c-table.head>
                     <c-table.head class="w-[6rem]">No.</c-table.head>
                     <c-table.head>Aircraft Reg</c-table.head>
                     <c-table.head>Assigned to</c-table.head>
@@ -21,11 +21,67 @@
             </c-table.body>
         </c-table>
     </div>
+    <div class="mt-4 hidden" id="batch-actions">
+        <form action="" method="post" class="flex gap-2" id="batch-reschedule-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reschedule-flights" />
+            <c-input type="date" name="new_date" required placeholder="Select new date" />
+            <c-button type="submit" variant="secondary" id="reschedule-btn" disabled>
+                <span class="icon-calendar"></span>
+                Reschedule Selected
+            </c-button>
+        </form>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+	const selectAllCheckbox = document.getElementById('select-all-flights');
+	const flightCheckboxes = document.querySelectorAll('[data-flight-row]');
+	const rescheduleBtn = document.getElementById('reschedule-btn');
+	const batchForm = document.getElementById('batch-reschedule-form');
+	const batchActions = document.getElementById('batch-actions');
+
+	function updateRescheduleButton() {
+		const anyChecked = Array.from(flightCheckboxes).some(cb => cb.checked);
+		rescheduleBtn.disabled = !anyChecked;
+		batchActions.classList.toggle('hidden', !anyChecked);
+	}
+
+	function updateSelectAllCheckbox() {
+		const allChecked = Array.from(flightCheckboxes).every(cb => cb.checked);
+		const anyChecked = Array.from(flightCheckboxes).some(cb => cb.checked);
+		selectAllCheckbox.checked = allChecked && anyChecked;
+	}
+
+	selectAllCheckbox.addEventListener('change', () => {
+		flightCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+		updateRescheduleButton();
+	});
+
+	flightCheckboxes.forEach(cb => {
+		cb.addEventListener('change', () => {
+			updateSelectAllCheckbox();
+			updateRescheduleButton();
+		});
+	});
+
+	batchForm.addEventListener('submit', (e) => {
+		const selectedIds = Array.from(flightCheckboxes)
+			.filter(cb => cb.checked)
+			.map(cb => cb.value);
+		const input = document.createElement('input');
+		input.type = 'hidden';
+		input.name = 'flight_ids';
+		input.value = JSON.stringify(selectedIds);
+		batchForm.appendChild(input);
+	});
+});
+</script>
 
 {% partialdef flight_row %}
 <c-table.row>
-	{% comment %} <c-table.cell class="w-[2rem]"><c-checkbox name="selected_flights" value="{{ flight.id }}" /></c-table.cell> {% endcomment %}
+	<c-table.cell class="w-[2rem]"><c-checkbox name="selected_flights" value="{{ flight.id }}" data-flight-row /></c-table.cell>
 	<c-table.cell class="w-[6rem]">{{ flight.flight_number }}</c-table.cell>
 	<c-table.cell title="{{ flight.aircraft.name }}">{{ flight.aircraft.reg }}</c-table.cell>
 	<c-table.cell>
