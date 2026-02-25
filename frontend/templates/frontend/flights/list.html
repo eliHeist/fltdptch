@@ -67,8 +67,20 @@
             {{ flight.closing_counters_fmt }}
         {% endif %}
     </c-table.cell>
-    <c-table.cell>{{ flight.boarding_bus_fmt }}</c-table.cell>
-    <c-table.cell>{{ flight.arrival_at_aircraft_fmt }}</c-table.cell>
+    <c-table.cell>
+        {% if flight.counters_not_applicable %}
+            <c-badge variant="secondary">N/A</c-badge>
+        {% else %}
+            {{ flight.boarding_bus_fmt }}
+        {% endif %}
+    </c-table.cell>
+    <c-table.cell>
+        {% if flight.counters_not_applicable %}
+            <c-badge variant="secondary">N/A</c-badge>
+        {% else %}
+            {{ flight.arrival_at_aircraft_fmt }}
+        {% endif %}
+    </c-table.cell>
     {% with u=flight.dispatched_by %}
     <c-table.cell title="{{ u.get_full_name }}">{{ u.get_identifier }}</c-table.cell>
     {% endwith %}
@@ -101,6 +113,24 @@
             <input type="hidden" name="pk" value="{{ flight.pk }}">
             <c-form.fieldset>
                 <h3 class="font-semibold text-lg opacity-60">Counters</h3>
+                <c-form.field>
+                    <div class="flex items-center gap-2">
+                        {% if flight.counters_not_applicable %}
+                        <c-checkbox
+                            id="counters_na_{{ flight.id }}"
+                            name="counters_not_applicable"
+                            checked
+                        />
+                        {% else %}
+                        <c-checkbox
+                            id="counters_na_{{ flight.id }}"
+                            name="counters_not_applicable"
+                        />
+                        {% endif %}
+                        <c-form.label for="counters_na_{{ flight.id }}" class="m-0">Not applicable</c-form.label>
+                    </div>
+                    <c-form.description>Check if counters are not required for this flight</c-form.description>
+                </c-form.field>
                 <div class="grid grid-cols-2 gap-2">
                     <c-form.field>
                         <c-form.label>Opening</c-form.label>
