@@ -10,6 +10,7 @@ class Flight(models.Model):
     closing_counters = models.TimeField(null=True, blank=True)
     boarding_bus = models.TimeField(null=True, blank=True)
     arrival_at_aircraft = models.TimeField(null=True, blank=True)
+    counters_not_applicable = models.BooleanField(default=False)
 
     assigned_to = models.ForeignKey(
         "accounts.User",
@@ -60,7 +61,7 @@ class Flight(models.Model):
     counter_id = lambda self: self.counters_by_id or self.assigned_to_id
     dispatcher_id = lambda self: self.dispatched_by_id or self.assigned_to_id
 
-    ready_for_dispatch = lambda self: all([
+    ready_for_dispatch = lambda self: self.counters_not_applicable or all([
         self.opening_counters is not None,
         self.closing_counters is not None,
         self.boarding_bus is not None,

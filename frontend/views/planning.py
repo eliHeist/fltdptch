@@ -2,7 +2,7 @@ from urllib.parse import urlencode
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
 
 from django.utils import timezone
@@ -13,7 +13,10 @@ from flights.models import Aircraft, Flight, Reconfirmation
 
 User = get_user_model()
 
-class PlanningView(LoginRequiredMixin, View):
+class PlanningView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        # Only admins can access the planning view
+        return self.request.user.is_admin_user()
     def get(self, request, *args, **kwargs):
         date_str = request.GET.get("date")
         date = parse_date(date_str) if date_str else timezone.localtime(timezone.now()).date()
@@ -35,6 +38,7 @@ class PlanningView(LoginRequiredMixin, View):
             "flights": flights,
             "aircraft_options": aircraft_options,
             "user_options": user_options,
+            "supervisor_options": user_options,  # Same users can be supervisors
             "date": date,
             "selected_users": list(selected_users),
             "reconfirmation": reconfirmation,
@@ -82,6 +86,7 @@ class PlanningView(LoginRequiredMixin, View):
             flight_number = request.POST.get("flight_number")
             aircraft_id = request.POST.get("aircraft_id")
             assignee_id = request.POST.get("assignee_id")
+            supervisor_id = request.POST.get("supervisor_id")
 
             if flight_number:
                 flight.flight_number = flight_number
@@ -99,6 +104,13 @@ class PlanningView(LoginRequiredMixin, View):
                 except User.DoesNotExist:
                     print("invalid assignee ID")
                     pass
+            if supervisor_id:
+                try:
+                    supervisor = User.objects.get(pk=supervisor_id)
+                    flight.supervisor = supervisor
+                except User.DoesNotExist:
+                    print("invalid supervisor ID")
+                    pass
             flight.save()
 
         elif action == "set-reconfirmation-assignees":
@@ -109,6 +121,10 @@ class PlanningView(LoginRequiredMixin, View):
             reconfirmation.assignees.set(assignees)
         
         elif action == "reschedule-flights":
+            # Only admins can reschedule flights
+            if not request.user.is_admin_user():
+                return redirect(url)
+            
             flight_ids_json = request.POST.get("flight_ids")
             new_date_str = request.POST.get("new_date")
             

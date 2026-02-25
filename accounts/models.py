@@ -78,7 +78,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=25, unique=True, null=True, blank=True)
     email = models.EmailField(verbose_name='Email address', max_length=255, unique=True)
     is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -97,6 +96,23 @@ class User(AbstractBaseUser, PermissionsMixin):
     def disable(self, using=None, keep_parents=False):
         self.is_active ^= True
         self.save()
+    
+    def has_role(self, role_name):
+        """Check if user belongs to a specific group/role"""
+        return self.groups.filter(name=role_name).exists()
+    
+    def is_admin_user(self):
+        """Check if user is an admin"""
+        return self.has_role('Admin')
+    
+    def is_supervisor_user(self):
+        """Check if user is a supervisor"""
+        return self.has_role('Supervisor')
+    
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        return self.is_superuser
 
     def get_full_name(self):
         full_name = f"{self.first_name} {self.last_name}"
@@ -137,11 +153,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_identifier(self):
         profile = self.get_profile()
         return profile.identifier if profile and profile.identifier else "N/A"
-    
-    @property
-    def is_staff(self):
-        "Is the user a member of staff?"
-        return self.is_admin
 
 
 class UserProfile(models.Model):

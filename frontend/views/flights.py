@@ -2,6 +2,7 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -14,8 +15,15 @@ class FlightListView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         date_str = request.GET.get("date")
         date = parse_date(date_str) if date_str else timezone.now().date()
-        # flights = Flight.objects.filter(date=date).order_by("flight_number")
-        flights = request.user.assigned_flights.filter(date=date).order_by("flight_number")
+        
+        # Admins see all flights, others see flights assigned to them or where they are the supervisor
+        if request.user.is_admin_user():
+            flights = Flight.objects.filter(date=date).order_by("flight_number")
+        else:
+            flights = Flight.objects.filter(
+                Q(assigned_to=request.user) | Q(supervisor=request.user),
+                date=date
+            ).order_by("flight_number")
 
         users = User.objects.filter(is_active=True).order_by("last_name", "first_name")
 
@@ -46,11 +54,13 @@ class FlightListView(LoginRequiredMixin, View):
         closing_counters = request.POST.get("closing_counters")
         boarding_bus = request.POST.get("boarding_bus")
         arrival_at_aircraft = request.POST.get("arrival_at_aircraft")
+        counters_not_applicable = request.POST.get("counters_not_applicable") == "on"
 
         flight.opening_counters = opening_counters or None
         flight.closing_counters = closing_counters or None
         flight.boarding_bus = boarding_bus or None
         flight.arrival_at_aircraft = arrival_at_aircraft or None
+        flight.counters_not_applicable = counters_not_applicable
         flight.counters_by_id = request.user.pk
         flight.save()
     

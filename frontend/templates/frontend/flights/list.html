@@ -53,8 +53,20 @@
 <c-table.row>
     <c-table.cell class="w-[5rem]">{{ flight.flight_number }}</c-table.cell>
     <c-table.cell  class="w-[5rem]" title="{{ flight.aircraft.full_name }}">{{ flight.aircraft.reg }}</c-table.cell>
-    <c-table.cell>{{ flight.opening_counters_fmt }}</c-table.cell>
-    <c-table.cell>{{ flight.closing_counters_fmt }}</c-table.cell>
+    <c-table.cell>
+        {% if flight.counters_not_applicable %}
+            <c-badge variant="secondary">N/A</c-badge>
+        {% else %}
+            {{ flight.opening_counters_fmt }}
+        {% endif %}
+    </c-table.cell>
+    <c-table.cell>
+        {% if flight.counters_not_applicable %}
+            <c-badge variant="secondary">N/A</c-badge>
+        {% else %}
+            {{ flight.closing_counters_fmt }}
+        {% endif %}
+    </c-table.cell>
     <c-table.cell>{{ flight.boarding_bus_fmt }}</c-table.cell>
     <c-table.cell>{{ flight.arrival_at_aircraft_fmt }}</c-table.cell>
     {% with u=flight.dispatched_by %}

@@ -1,37 +1,35 @@
 <div id="table">
 	<div class="actions flex gap-2 justify-between mb-2">
-        <h2 class="text-lg">
-            Flights
-        </h2>
+		<h2 class="text-lg">Flights</h2>
 		{% partial form %}
 	</div>
-    <div class="border rounded-lg overflow-hidden">
-        <c-table>
-            <c-table.header>
-                <c-table.row>
-                    <c-table.head class="w-[2rem]"><c-checkbox id="select-all-flights" data-select-all /></c-table.head>
-                    <c-table.head class="w-[6rem]">No.</c-table.head>
-                    <c-table.head>Aircraft Reg</c-table.head>
-                    <c-table.head>Assigned to</c-table.head>
-                    <c-table.head></c-table.head>
-                </c-table.row>
-            </c-table.header>
-            <c-table.body id="flights">
-                {% for flight in flights %}{% partial flight_row %}{% endfor %}
-            </c-table.body>
-        </c-table>
-    </div>
-    <div class="mt-4 hidden" id="batch-actions">
-        <form action="" method="post" class="flex gap-2" id="batch-reschedule-form">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="reschedule-flights" />
-            <c-input type="date" name="new_date" required placeholder="Select new date" />
-            <c-button type="submit" variant="secondary" id="reschedule-btn" disabled>
-                <span class="icon-calendar"></span>
-                Reschedule Selected
-            </c-button>
-        </form>
-    </div>
+	<div class="border rounded-lg overflow-hidden">
+		<c-table>
+			<c-table.header>
+				<c-table.row>
+					<c-table.head class="w-[2rem]"><c-checkbox id="select-all-flights" data-select-all /></c-table.head>
+					<c-table.head class="w-[6rem]">No.</c-table.head>
+					<c-table.head>Aircraft Reg</c-table.head>
+					<c-table.head>Assigned to</c-table.head>
+					<c-table.head></c-table.head>
+				</c-table.row>
+			</c-table.header>
+			<c-table.body id="flights">
+				{% for flight in flights %}{% partial flight_row %}{% endfor %}
+			</c-table.body>
+		</c-table>
+	</div>
+	<div class="mt-4 hidden" id="batch-actions">
+		<form action="" method="post" class="flex gap-2" id="batch-reschedule-form">
+			{% csrf_token %}
+			<input type="hidden" name="action" value="reschedule-flights" />
+			<c-input type="date" name="new_date" required placeholder="Select new date" />
+			<c-button type="submit" variant="secondary" id="reschedule-btn" disabled>
+				<span class="icon-calendar"></span>
+				Reschedule Selected
+			</c-button>
+		</form>
+	</div>
 </div>
 
 <script>
@@ -85,75 +83,86 @@ document.addEventListener('DOMContentLoaded', () => {
 	<c-table.cell class="w-[6rem]">{{ flight.flight_number }}</c-table.cell>
 	<c-table.cell title="{{ flight.aircraft.name }}">{{ flight.aircraft.reg }}</c-table.cell>
 	<c-table.cell>
-        {% if flight.assigned_to %}
-            <c-badge variant="secondary" class="uppercase">{{ flight.assigned_to.get_name }}</c-badge>
-        {% else %}
-            -
-        {% endif %}
-    </c-table.cell>
+		{% if flight.assigned_to %}
+			<c-badge variant="secondary" class="uppercase">{{ flight.assigned_to.get_name }}</c-badge>
+		{% else %}
+			-
+		{% endif %}
+	</c-table.cell>
 	<c-table.cell class="flex justify-end">
-        {% with edit=True %}
-        {% partial form %}
-        {% endwith %}
-    </c-table.cell>
+		{% with edit=True %}
+		{% partial form %}
+		{% endwith %}
+	</c-table.cell>
 </c-table.row>
 {% endpartialdef flight_row %}
 
 
 {% partialdef form %}
 <c-dialog>
-    <c-dialog.trigger>
-        {% if edit %}
-        Edit
-        {% else %}
-        Add a flight
-        {% endif %}
-    </c-dialog.trigger>
-    <c-dialog.content>
-        <c-dialog.header>
-            <c-dialog.title>Edit flight</c-dialog.title>
-        </c-dialog.header>
-        <form action="" method="post">
-            {% csrf_token %}
-            {% if edit %}
-            <input type="hidden" name="action" value="edit-flight" />
-            <input type="hidden" name="pk" value="{{ flight.pk }}" />
-            {% else %}
-            <input type="hidden" name="action" value="add-flight" />
-            {% endif %}
-            <input type="hidden" name="date" value="{{ flight.date|date:'Y-m-d' }}" />
-            <div class="grid gap-4 py-4">
-                <c-input type="text" name="flight_number" label="Flight Number" required placeholder="Enter flight number" value="{{ flight.flight_number }}" />
-                <div id="combobox" class="flex gap-2">
-                    <c-combobox
-                        :options='{{ aircraft_options|safe }}'
-                        selected_value={{ flight.aircraft.pk }}
-                        placeholder='Search aircraft...'
-                        button_text='Select aircraft...'
-                        class='flex-1'
-                        width='w-full'
-                        name='aircraft_id'
-                        required
-                    />
-                </div>
-                <div id="combobox" class="flex gap-2">
-                    <c-combobox
-                        :options='{{ user_options|safe }}'
-                        selected_value={{ flight.assigned_to.pk }}
-                        placeholder='Search user...'
-                        button_text='Assign to...'
-                        class='flex-1'
-                        width='w-full'
-                        name='assignee_id'
-                        required
-                    />
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-4">
-                <c-button variant="outline" @click="hideDialog">Cancel</c-button>
-                <c-button type="submit">Submit</c-button>
-            </div>
-        </form>
-    </c-dialog.content>
+	<c-dialog.trigger>
+		{% if edit %}
+		Edit
+		{% else %}
+		Add a flight
+		{% endif %}
+	</c-dialog.trigger>
+	<c-dialog.content>
+		<c-dialog.header>
+			<c-dialog.title>Edit flight</c-dialog.title>
+		</c-dialog.header>
+		<form action="" method="post">
+			{% csrf_token %}
+			{% if edit %}
+			<input type="hidden" name="action" value="edit-flight" />
+			<input type="hidden" name="pk" value="{{ flight.pk }}" />
+			{% else %}
+			<input type="hidden" name="action" value="add-flight" />
+			{% endif %}
+			<input type="hidden" name="date" value="{{ flight.date|date:'Y-m-d' }}" />
+			<div class="grid gap-4 py-4">
+				<c-input type="text" name="flight_number" label="Flight Number" required placeholder="Enter flight number" value="{{ flight.flight_number }}" />
+				<div id="combobox" class="flex gap-2">
+					<c-combobox
+						:options='{{ aircraft_options|safe }}'
+						selected_value="{{ flight.aircraft.pk }}"
+						placeholder='Search aircraft...'
+						button_text='Select aircraft...'
+						class='flex-1'
+						width='w-full'
+						name='aircraft_id'
+						required
+					/>
+				</div>
+				<div id="combobox" class="flex gap-2">
+					<c-combobox
+						:options='{{ user_options|safe }}'
+						selected_value="{{ flight.assigned_to.pk }}"
+						placeholder='Search user...'
+						button_text='Assign to...'
+						class='flex-1'
+						width='w-full'
+						name='assignee_id'
+						required
+					/>
+				</div>
+				<div id="combobox" class="flex gap-2">
+					<c-combobox
+						:options='{{ supervisor_options|safe }}'
+						selected_value="{{ flight.supervisor.pk }}"
+						placeholder='Search supervisor...'
+						button_text='Assign supervisor...'
+						class='flex-1'
+						width='w-full'
+						name='supervisor_id'
+					/>
+				</div>
+			</div>
+			<div class="flex justify-end gap-2 pt-4">
+				<c-button variant="outline" @click="hideDialog">Cancel</c-button>
+				<c-button type="submit">Submit</c-button>
+			</div>
+		</form>
+	</c-dialog.content>
 </c-dialog>
 {% endpartialdef form %}

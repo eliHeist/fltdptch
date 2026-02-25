@@ -1,7 +1,8 @@
 from django.shortcuts import redirect, render
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.db import transaction
 
 from django.utils import timezone
@@ -13,7 +14,11 @@ from flights.models import Aircraft, Flight
 User = get_user_model()
 
 
-class UsersView(LoginRequiredMixin, View):
+class UsersView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        # Only admins can manage users and assign roles
+        return self.request.user.is_admin_user()
+    
     def get(self, request, *args, **kwargs):
         date_str = request.GET.get("date")
         date = parse_date(date_str) if date_str else timezone.now().date()
@@ -35,6 +40,8 @@ class UsersView(LoginRequiredMixin, View):
             self._edit_user(request)
         if action == "add-user":
             self._add_user(request)
+        if action == "assign-roles":
+            self._assign_roles(request)
 
         return redirect("frontend:users")
     
@@ -79,3 +86,25 @@ class UsersView(LoginRequiredMixin, View):
             user_profile.gender = gender
             user_profile.identifier = identifier
             user_profile.save()
+    
+    def _assign_roles(self, request):
+        pk = request.POST.get("pk")
+        user = User.objects.get(pk=pk)
+        
+        is_admin = request.POST.get("is_admin") == "on"
+        is_supervisor = request.POST.get("is_supervisor") == "on"
+        
+        # Get the admin and supervisor groups
+        admin_group = Group.objects.get(name='Admin')
+        supervisor_group = Group.objects.get(name='Supervisor')
+        
+        # Update group memberships
+        if is_admin:
+            user.groups.add(admin_group)
+        else:
+            user.groups.remove(admin_group)
+        
+        if is_supervisor:
+            user.groups.add(supervisor_group)
+        else:
+            user.groups.remove(supervisor_group)

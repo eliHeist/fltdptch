@@ -27,6 +27,14 @@
 - The project uses `django-cotton` + `django-template-partials` (see `TEMPLATES[0]["OPTIONS"]` in `fltdptch/settings.py`).
   - Prefer Cotton components in templates (e.g. `<c-card>`, `<c-table>`, `<c-tabs>` as in `templates/frontend/analytics/base.html`).
   - Avoid inventing new design tokens/colors; reuse the existing component set under `templates/cotton/`.
+  - **Cotton component constraint**: Django template tags (e.g. `{% if %}`) cannot be placed directly inside c- component tags. Only use template tags in attributes (e.g. `class="{% tag %}"`) or wrap components in conditional blocks. For conditional attributes like `checked`, render separate component instances for each condition instead of using `{% if %}` inside the tag.
+
+## Role-based access control
+- The app uses Django Groups for role management: 'Normal User', 'Supervisor', 'Admin'.
+- Three helper methods on User model: `has_role(name)`, `is_admin_user()`, `is_supervisor_user()`.
+- Access control in views: use `UserPassesTestMixin` with `test_func()` to check roles via helper methods.
+- In templates: check group membership with `{% for group in user.groups.all %}...{% endfor %}` or use helper methods via context.
+- To initialize groups: run `python manage.py setup_groups` once after deployment.
 
 ## Static assets (Vite)
 - Frontend assets are managed with Vite in `fltdptch/assets/static/` (see `fltdptch/assets/static/package.json`).

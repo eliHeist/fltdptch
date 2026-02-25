@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -15,7 +16,15 @@ class LandingView(LoginRequiredMixin, View):
         date = timezone.localtime(timezone.now()).date()
         user = request.user
 
-        flights = user.assigned_flights.filter(date=date).order_by("flight_number")
+        # Admins see all flights, others see flights assigned to them or where they are the supervisor
+        if user.is_admin_user():
+            flights = Flight.objects.filter(date=date).order_by("flight_number")
+        else:
+            flights = Flight.objects.filter(
+                Q(assigned_to=user) | Q(supervisor=user),
+                date=date
+            ).order_by("flight_number")
+        
         pending_reconfirmations = user.reconfirmations.filter(date_for__gte=date)
 
         context = {

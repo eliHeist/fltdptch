@@ -15,6 +15,8 @@
                     <c-table.head>Email</c-table.head>
                     <c-table.head>Status</c-table.head>
                     <c-table.head>Identifier</c-table.head>
+                    <c-table.head>Admin</c-table.head>
+                    <c-table.head>Supervisor</c-table.head>
                     <c-table.head></c-table.head>
                 </c-table.row>
             </c-table.header>
@@ -39,9 +41,76 @@
         {% endif %}
     </c-table.cell>
     <c-table.cell>{{ user.get_identifier }}</c-table.cell>
-    {% with edit=True %}
-    <c-table.cell class="flex justify-end">{% partial form %}</c-table.cell>
-    {% endwith %}
+    <c-table.cell>
+        {% if user.groups.all|length > 0 %}
+            {% for group in user.groups.all %}
+                <c-badge>{{ group.name }}</c-badge>
+            {% endfor %}
+        {% else %}
+            <c-badge variant="secondary">No roles</c-badge>
+        {% endif %}
+    </c-table.cell>
+    <c-table.cell></c-table.cell>
+    <c-table.cell class="flex justify-end gap-2">
+        <c-dialog>
+            <c-dialog.trigger>Roles</c-dialog.trigger>
+            <c-dialog.content>
+                <c-dialog.header>
+                    <c-dialog.title>Assign Roles - {{ user.get_full_name }}</c-dialog.title>
+                </c-dialog.header>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="assign-roles" />
+                    <input type="hidden" name="pk" value="{{ user.pk }}" />
+                    <div class="p-4 space-y-4">
+                        <c-form.field>
+                            <div class="flex items-center gap-2">
+                                {% if 'Admin' in user.groups.values_list %}
+                                <c-checkbox
+                                    id="admin_{{ user.id }}"
+                                    name="is_admin"
+                                    checked
+                                />
+                                {% else %}
+                                <c-checkbox
+                                    id="admin_{{ user.id }}"
+                                    name="is_admin"
+                                />
+                                {% endif %}
+                                <c-form.label for="admin_{{ user.id }}" class="m-0">Admin</c-form.label>
+                            </div>
+                            <c-form.description>Can manage all flights, assign supervisors, and reschedule</c-form.description>
+                        </c-form.field>
+                        <c-form.field>
+                            <div class="flex items-center gap-2">
+                                {% if 'Supervisor' in user.groups.values_list %}
+                                <c-checkbox
+                                    id="supervisor_{{ user.id }}"
+                                    name="is_supervisor"
+                                    checked
+                                />
+                                {% else %}
+                                <c-checkbox
+                                    id="supervisor_{{ user.id }}"
+                                    name="is_supervisor"
+                                />
+                                {% endif %}
+                                <c-form.label for="supervisor_{{ user.id }}" class="m-0">Supervisor</c-form.label>
+                            </div>
+                            <c-form.description>Can supervise assigned flights and manage aircraft</c-form.description>
+                        </c-form.field>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-4 border-t px-4 py-4">
+                        <c-button variant="outline" type="button" @click="hideDialog">Cancel</c-button>
+                        <c-button type="submit">Save Roles</c-button>
+                    </div>
+                </form>
+            </c-dialog.content>
+        </c-dialog>
+        {% with edit=True %}
+        {% partial form %}
+        {% endwith %}
+    </c-table.cell>
 </c-table.row>
 {% endpartialdef user_row %}
 

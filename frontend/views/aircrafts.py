@@ -1,11 +1,15 @@
 from django.shortcuts import redirect, render
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from flights.models import Aircraft
 
 
-class AircraftsListView(LoginRequiredMixin, View):
+class AircraftsListView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        # Only admins and supervisors can manage aircraft
+        user = self.request.user
+        return user.is_admin_user() or user.is_supervisor_user()
     def get(self, request, *args, **kwargs):
         aircrafts = Aircraft.objects.all()
 
