@@ -22,16 +22,20 @@
 					>Bookings</c-navigation-menu.link
 				>
 			</c-navigation-menu.item>
+            {% if perms.flights.view_aircraft %}
 			<c-navigation-menu.item>
 				<c-navigation-menu.link href="{% url 'frontend:aircrafts' %}" class="navlink"
 					>Aircrafts</c-navigation-menu.link
 				>
 			</c-navigation-menu.item>
+            {% endif %}
+            {% if perms.flights.view_users %}
 			<c-navigation-menu.item>
 				<c-navigation-menu.link href="{% url 'frontend:users' %}" class="navlink"
 					>Users</c-navigation-menu.link
 				>
 			</c-navigation-menu.item>
+            {% endif %}
 			<c-navigation-menu.item>
 				<c-navigation-menu.link href="{% url 'frontend:analytics' %}" class="navlink"
 					>Analytics</c-navigation-menu.link
