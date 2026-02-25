@@ -3,11 +3,13 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.conf import settings
 from django.db import transaction
 
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 
+from accounts.forms import CustomPasswordResetForm
 from accounts.models import UserProfile
 from flights.models import Aircraft, Flight
 
@@ -65,6 +67,22 @@ class UsersView(LoginRequiredMixin, UserPassesTestMixin, View):
             user_profile.gender = gender
             user_profile.identifier = identifier
             user_profile.save()
+
+            transaction.on_commit(
+                lambda: self._send_password_reset_link(request, user.email)
+            )
+
+    def _send_password_reset_link(self, request, email):
+        form = CustomPasswordResetForm({"email": email})
+        if not form.is_valid():
+            return
+
+        form.save(
+            request=request,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            custom_message="Click below to set up your password.",
+            reset_type="setup",
+        )
     
     def _edit_user(self, request):
         pk = request.POST.get("pk")
